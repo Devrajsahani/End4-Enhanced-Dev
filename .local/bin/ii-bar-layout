@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$HOME/.config/illogical-impulse/theme-packs"
+THEME="$ROOT/bar-layout.rasi"
+PREVIEWS="$ROOT/previews"
+
+current=$(qs -c ii ipc call barLayout current 2>/dev/null || printf 'reference')
+case "$current" in
+    noctalia) selected_row=1 ;;
+    control-deck) selected_row=2 ;;
+    minimal) selected_row=3 ;;
+    centered) selected_row=4 ;;
+    *) selected_row=0 ;;
+esac
+
+selected=$(printf '%s\0icon\x1f%s\n' \
+    "Aesthetic  ·  Floating Islands  —  Independent dark capsules" "$PREVIEWS/bar-reference.svg" \
+    "Aesthetic  ·  Noctalia Zones  —  Three polished module islands" "$PREVIEWS/bar-noctalia.svg" \
+    "Functional ·  Control Deck  —  Workspaces and clock in the central hub" "$PREVIEWS/bar-control-deck.svg" \
+    "Basic       ·  Quiet Essentials  —  Compact, calm, distraction-free" "$PREVIEWS/bar-minimal.svg" \
+    "Classic     ·  Center Capsule  —  Centered workspaces and time" "$PREVIEWS/bar-sleek.svg" |
+    rofi -dmenu -i -show-icons -p "󰌨 Top Bar" -theme "$THEME" -no-custom -selected-row "$selected_row" -format s) || true
+
+case "$selected" in
+    *"Floating Islands"*) layout=reference ;;
+    *"Noctalia Zones"*) layout=noctalia ;;
+    *"Control Deck"*) layout=control-deck ;;
+    *"Quiet Essentials"*) layout=minimal ;;
+    *"Center Capsule"*) layout=centered ;;
+    *) exit 0 ;;
+esac
+
+qs -c ii ipc call barLayout select "$layout"
+if command -v notify-send >/dev/null 2>&1; then
+    notify-send -a "Top bar layout" "Top bar layout updated" "$selected"
+fi

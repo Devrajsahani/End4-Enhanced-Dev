@@ -1,0 +1,36 @@
+# Backups and temporary files
+*.bak
+*.backup-*
+backup-*
+*.tmp
+*.swp
+*~
+
+# IDE and agent metadata
+.agents/
+.aws/
+.codex/
+.vscode/
+.idea/
+
+# System and cache files
+__pycache__/
+*.py[cod]
+.cache/
+thumbs.db
+.DS_Store
+
+# Sockets and PIDs
+*.sock
+*.pid
+*.log
+
+# Sensitive files / keys (safety guard)
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.env
+.env.*
+token*
+credentials*

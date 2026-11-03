@@ -1,0 +1,5 @@
+-- Hyprpaper is automatically managed via systemd user service (systemctl --user enable hyprpaper)
+-- If you prefer hyprland directly launching it instead of systemd, uncomment below:
+-- hl.on("hyprland.start", function ()
+--     hl.exec_cmd("hyprpaper")
+-- end)

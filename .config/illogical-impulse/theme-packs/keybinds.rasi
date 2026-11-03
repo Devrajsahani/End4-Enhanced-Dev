@@ -1,0 +1,108 @@
+@import "rofi-colors.rasi"
+
+configuration {
+    show-icons: false;
+    matching: "fuzzy";
+    sort: true;
+    sorting-method: "fzf";
+    font: "Google Sans Flex 11";
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+    click-to-exit: true;
+}
+
+* {
+    background-color: transparent;
+    text-color: @on-surface;
+}
+
+window {
+    width: 860px;
+    height: 600px;
+    padding: 22px;
+    border: 1px;
+    border-radius: 24px;
+    border-color: @outline;
+    background-color: @surface;
+}
+
+mainbox {
+    spacing: 14px;
+    children: [ "inputbar", "listview", "textbox-help" ];
+}
+
+inputbar {
+    padding: 12px 18px;
+    border: 1px;
+    border-radius: 16px;
+    border-color: @outline;
+    background-color: @surface-container;
+    spacing: 12px;
+    children: [ "prompt", "entry", "num-filtered-rows" ];
+}
+
+prompt {
+    text-color: @primary;
+    font: "Google Sans Flex Bold 12";
+}
+
+entry {
+    text-color: @on-surface;
+    placeholder: "Search shortcuts (e.g. 'workspace', 'window', 'audio', 'shell')...";
+    placeholder-color: @outline;
+}
+
+num-filtered-rows {
+    text-color: @outline;
+    expand: false;
+    vertical-align: 0.5;
+}
+
+listview {
+    columns: 1;
+    lines: 10;
+    cycle: true;
+    dynamic: true;
+    layout: vertical;
+    fixed-columns: true;
+    fixed-height: false;
+    spacing: 6px;
+    background-color: transparent;
+}
+
+element {
+    orientation: horizontal;
+    children: [ "element-text" ];
+    spacing: 12px;
+    padding: 8px 14px;
+    border: 1px;
+    border-radius: 12px;
+    border-color: transparent;
+    background-color: @surface-container;
+    cursor: pointer;
+}
+
+element selected {
+    border: 1px;
+    border-color: @primary;
+    background-color: @primary-container;
+    text-color: @on-primary-container;
+}
+
+element-text {
+    horizontal-align: 0.0;
+    vertical-align: 0.5;
+    text-color: inherit;
+    markup: true;
+    font: "Google Sans Flex 11";
+}
+
+textbox-help {
+    expand: false;
+    str: "󰌑 Execute Action  •  󰁔 Navigate  •   Filter  •  󱊷 Cancel";
+    horizontal-align: 0.5;
+    text-color: @outline;
+    font: "Google Sans Flex 10";
+    padding: 4px 0 0 0;
+}
+

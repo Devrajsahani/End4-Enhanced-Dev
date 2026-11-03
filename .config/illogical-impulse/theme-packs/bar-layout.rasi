@@ -1,0 +1,106 @@
+@import "rofi-colors.rasi"
+
+configuration {
+    show-icons: true;
+    matching: "fuzzy";
+    sort: false;
+    font: "Google Sans Flex 11";
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+    click-to-exit: true;
+}
+
+* {
+    background-color: transparent;
+    text-color: @on-surface;
+}
+
+window {
+    width: 840px;
+    height: 480px;
+    padding: 18px;
+    border: 1px;
+    border-radius: 24px;
+    border-color: @outline;
+    background-color: @surface;
+}
+
+mainbox {
+    spacing: 12px;
+    children: [ "inputbar", "listview", "textbox-help" ];
+}
+
+inputbar {
+    padding: 10px 16px;
+    border: 1px;
+    border-radius: 14px;
+    border-color: @outline;
+    background-color: @surface-container;
+    spacing: 12px;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    text-color: @primary;
+    font: "Google Sans Flex Bold 12";
+}
+
+entry {
+    text-color: @on-surface;
+    placeholder: "Select top bar layout style...";
+    placeholder-color: @outline;
+}
+
+listview {
+    columns: 1;
+    lines: 5;
+    cycle: true;
+    dynamic: false;
+    layout: vertical;
+    fixed-columns: true;
+    fixed-height: false;
+    spacing: 8px;
+    background-color: transparent;
+}
+
+element {
+    orientation: horizontal;
+    children: [ "element-icon", "element-text" ];
+    spacing: 16px;
+    padding: 8px 14px;
+    border: 1px;
+    border-radius: 14px;
+    border-color: transparent;
+    background-color: @surface-container;
+    cursor: pointer;
+}
+
+element selected {
+    border: 2px;
+    border-color: @primary;
+    background-color: @primary-container;
+    text-color: @on-primary-container;
+}
+
+element-icon {
+    size: 46px;
+    border-radius: 8px;
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}
+
+element-text {
+    horizontal-align: 0.0;
+    vertical-align: 0.5;
+    text-color: inherit;
+    font: "Google Sans Flex Medium 10.5";
+}
+
+textbox-help {
+    expand: false;
+    str: "󰌑 Switch Bar Layout  •  󰁔 Navigate  •  󱊷 Cancel";
+    horizontal-align: 0.5;
+    text-color: @outline;
+    font: "Google Sans Flex 10";
+    padding: 4px 0 0 0;
+}

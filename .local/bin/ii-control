@@ -1,0 +1,317 @@
+#!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+# II-CONTROL: Quick Controls & Productivity Hub (Volume, Brightness, Apps)
+# Inspired by Dusky Linux & optimized for End4 Hyprland Rice
+# -----------------------------------------------------------------------------
+set -uo pipefail
+
+THEME_DIR="$HOME/.config/illogical-impulse/theme-packs"
+ROFI_THEME="$THEME_DIR/control.rasi"
+
+# --- Helper Functions ---
+get_vol_info() {
+    local raw
+    raw=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo "Volume: 0.00")
+    local val
+    val=$(awk '{print int($2 * 100 + 0.5)}' <<< "$raw")
+    if [[ "$raw" == *"[MUTED]"* ]]; then
+        echo "${val}% [MUTED]"
+    else
+        echo "${val}%"
+    fi
+}
+
+get_vol_int() {
+    local raw
+    raw=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo "Volume: 0.00")
+    awk '{print int($2 * 100 + 0.5)}' <<< "$raw"
+}
+
+get_bright_int() {
+    local val
+    val=$(brightnessctl -m 2>/dev/null | awk -F',' '{print $4}' | tr -d '%' || echo "50")
+    echo "${val:-50}"
+}
+
+osd_notify() {
+    local app="$1"
+    local icon="$2"
+    local val="$3"
+    local title="$4"
+    local body="${5:-}"
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send -a "$app" \
+            -h string:x-canonical-private-synchronous:sys-osd \
+            -h int:value:"$val" \
+            -i "$icon" \
+            "$title" "$body"
+    fi
+}
+
+# --- Direct Actions (CLI / Keybindings) ---
+action_vol_up() {
+    local step="${1:-5}"
+    wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ "${step}%+"
+    local v
+    v=$(get_vol_int)
+    osd_notify "Volume" "audio-volume-high" "$v" "Volume: ${v}%"
+}
+
+action_vol_down() {
+    local step="${1:-5}"
+    wpctl set-volume @DEFAULT_AUDIO_SINK@ "${step}%-"
+    local v
+    v=$(get_vol_int)
+    osd_notify "Volume" "audio-volume-low" "$v" "Volume: ${v}%"
+}
+
+action_vol_mute() {
+    wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+    local v raw
+    v=$(get_vol_int)
+    raw=$(get_vol_info)
+    if [[ "$raw" == *"[MUTED]"* ]]; then
+        osd_notify "Volume" "audio-volume-muted" 0 "Audio Muted" "Volume: ${v}%"
+    else
+        osd_notify "Volume" "audio-volume-high" "$v" "Audio Unmuted" "Volume: ${v}%"
+    fi
+}
+
+action_mic_mute() {
+    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+    local raw
+    raw=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null || echo "")
+    if [[ "$raw" == *"[MUTED]"* ]]; then
+        osd_notify "Microphone" "microphone-sensitivity-muted" 0 "Microphone Muted"
+    else
+        osd_notify "Microphone" "microphone-sensitivity-high" 100 "Microphone Active"
+    fi
+}
+
+action_bright_up() {
+    local step="${1:-5}"
+    brightnessctl s "${step}%+" >/dev/null 2>&1 || true
+    local b
+    b=$(get_bright_int)
+    osd_notify "Brightness" "display-brightness-symbolic" "$b" "Brightness: ${b}%"
+}
+
+action_bright_down() {
+    local step="${1:-5}"
+    brightnessctl s "${step}%-" >/dev/null 2>&1 || true
+    local b
+    b=$(get_bright_int)
+    osd_notify "Brightness" "display-brightness-symbolic" "$b" "Brightness: ${b}%"
+}
+
+# --- Rofi Sub-menus ---
+menu_volume() {
+    local current
+    current=$(get_vol_info)
+    local cur_int
+    cur_int=$(get_vol_int)
+
+    local options=(
+        "󰝟 Toggle Mute  (Currently: ${current})"
+        "󰕾 Set to 100%  (Maximum)"
+        "󰕾 Set to 80%   (Loud)"
+        "󰕾 Set to 60%   (Comfortable)"
+        "󰕾 Set to 40%   (Medium)"
+        "󰕾 Set to 20%   (Quiet)"
+        "󰕾 Step Up +10%"
+        "󰕾 Step Up +5%"
+        "󰕾 Step Down -5%"
+        "󰕾 Step Down -10%"
+        "󰕾 Precise +1%"
+        "󰕾 Precise -1%"
+        "󰓃 Switch Audio Output Device..."
+        "󰍬 Microphone Controls..."
+    )
+
+    local choice
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -theme "$ROFI_THEME" -p "󰕾 Volume [${current}]") || return 0
+    [[ -z "$choice" ]] && return 0
+
+    # If user typed a direct number (e.g. 45 or 80)
+    if [[ "$choice" =~ ^[0-9]+$ ]]; then
+        local target="$choice"
+        if (( target > 150 )); then target=150; fi
+        wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ "${target}%"
+        osd_notify "Volume" "audio-volume-high" "$target" "Volume set to ${target}%"
+        return 0
+    fi
+
+    case "$choice" in
+        *"Toggle Mute"*) action_vol_mute ;;
+        *"100%"*) wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 100%; osd_notify "Volume" "audio-volume-high" 100 "Volume: 100%" ;;
+        *"80%"*)  wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 80%;  osd_notify "Volume" "audio-volume-high" 80 "Volume: 80%" ;;
+        *"60%"*)  wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 60%;  osd_notify "Volume" "audio-volume-medium" 60 "Volume: 60%" ;;
+        *"40%"*)  wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 40%;  osd_notify "Volume" "audio-volume-low" 40 "Volume: 40%" ;;
+        *"20%"*)  wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 20%;  osd_notify "Volume" "audio-volume-low" 20 "Volume: 20%" ;;
+        *"+10%"*) action_vol_up 10 ;;
+        *"+5%"*)  action_vol_up 5 ;;
+        *"-5%"*)  action_vol_down 5 ;;
+        *"-10%"*) action_vol_down 10 ;;
+        *"+1%"*)  action_vol_up 1 ;;
+        *"-1%"*)  action_vol_down 1 ;;
+        *"Switch Audio Output"*) "$HOME/.local/bin/ii-audio" ;;
+        *"Microphone Controls"*) action_mic_mute ;;
+    esac
+}
+
+menu_brightness() {
+    local cur_int
+    cur_int=$(get_bright_int)
+
+    local options=(
+        "󰃠 Set to 100%  (Maximum Brightness)"
+        "󰃠 Set to 75%   (Bright Indoor)"
+        "󰃠 Set to 50%   (Balanced)"
+        "󰃠 Set to 25%   (Dim / Evening)"
+        "󰃠 Set to 10%   (Night Time)"
+        "󰃠 Set to 1%    (Minimum Backlight)"
+        "󰃝 Step Up +10%"
+        "󰃝 Step Up +5%"
+        "󰃞 Step Down -5%"
+        "󰃞 Step Down -10%"
+        "󰃝 Precise +1%"
+        "󰃞 Precise -1%"
+        "󰃝 Adjust Night Light Filter..."
+    )
+
+    local choice
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -theme "$ROFI_THEME" -p "󰃠 Brightness [${cur_int}%]") || return 0
+    [[ -z "$choice" ]] && return 0
+
+    if [[ "$choice" =~ ^[0-9]+$ ]]; then
+        local target="$choice"
+        if (( target > 100 )); then target=100; fi
+        if (( target < 1 )); then target=1; fi
+        brightnessctl s "${target}%" >/dev/null 2>&1 || true
+        osd_notify "Brightness" "display-brightness-symbolic" "$target" "Brightness set to ${target}%"
+        return 0
+    fi
+
+    case "$choice" in
+        *"100%"*) brightnessctl s 100% >/dev/null 2>&1; osd_notify "Brightness" "display-brightness-symbolic" 100 "Brightness: 100%" ;;
+        *"75%"*)  brightnessctl s 75% >/dev/null 2>&1;  osd_notify "Brightness" "display-brightness-symbolic" 75 "Brightness: 75%" ;;
+        *"50%"*)  brightnessctl s 50% >/dev/null 2>&1;  osd_notify "Brightness" "display-brightness-symbolic" 50 "Brightness: 50%" ;;
+        *"25%"*)  brightnessctl s 25% >/dev/null 2>&1;  osd_notify "Brightness" "display-brightness-symbolic" 25 "Brightness: 25%" ;;
+        *"10%"*)  brightnessctl s 10% >/dev/null 2>&1;  osd_notify "Brightness" "display-brightness-symbolic" 10 "Brightness: 10%" ;;
+        *"1%"*)   brightnessctl s 1% >/dev/null 2>&1;   osd_notify "Brightness" "display-brightness-symbolic" 1 "Brightness: 1%" ;;
+        *"+10%"*) action_bright_up 10 ;;
+        *"+5%"*)  action_bright_up 5 ;;
+        *"-5%"*)  action_bright_down 5 ;;
+        *"-10%"*) action_bright_down 10 ;;
+        *"+1%"*)  action_bright_up 1 ;;
+        *"-1%"*)  action_bright_down 1 ;;
+        *"Night Light"*) menu_nightlight ;;
+    esac
+}
+
+menu_nightlight() {
+    local options=(
+        "󰃠 Daylight (6500K - Normal / Off)"
+        "󰃝 Evening Warm (5000K - Gentle Warmth)"
+        "󰃝 Cozy Night (4000K - Balanced Blue Filter)"
+        "󰃞 Bedtime (3000K - Deep Amber Filter)"
+        "󰃞 Candlelight (2200K - Ultra Relax Amber)"
+    )
+
+    local choice
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -theme "$ROFI_THEME" -p "󰃝 Night Light Temperature") || return 0
+    [[ -z "$choice" ]] && return 0
+
+    pkill -f hyprsunset 2>/dev/null || true
+    sleep 0.1
+
+    case "$choice" in
+        *"Daylight"*)
+            osd_notify "Night Light" "weather-clear" 100 "Night Light: Off (6500K)"
+            ;;
+        *"5000K"*)
+            hyprsunset -t 5000 &
+            osd_notify "Night Light" "weather-few-clouds-night" 80 "Night Light: 5000K Warm"
+            ;;
+        *"4000K"*)
+            hyprsunset -t 4000 &
+            osd_notify "Night Light" "weather-few-clouds-night" 60 "Night Light: 4000K Cozy"
+            ;;
+        *"3000K"*)
+            hyprsunset -t 3000 &
+            osd_notify "Night Light" "weather-few-clouds-night" 40 "Night Light: 3000K Bedtime"
+            ;;
+        *"2200K"*)
+            hyprsunset -t 2200 &
+            osd_notify "Night Light" "weather-few-clouds-night" 20 "Night Light: 2200K Candlelight"
+            ;;
+    esac
+}
+
+purge_cache() {
+    local cleaned=0
+    rm -rf "$HOME/.cache/thumbnails"/* 2>/dev/null || true
+    osd_notify "Maintenance" "trash-empty" 100 "Cache Purged" "Cleaned user thumbnail & temporary caches"
+}
+
+# --- Main Dashboard ---
+menu_main() {
+    local vol_info
+    vol_info=$(get_vol_info)
+    local bright_info
+    bright_info=$(get_bright_int)
+
+    local options=(
+        "󰕾 Volume: ${vol_info}  —  Presets (100%, 80%, 60%, 40%, 20%), Mute, Fine tune"
+        "󰃠 Brightness: ${bright_info}%  —  Presets (100%, 75%, 50%, 25%, 10%), Fine tune"
+        "󰃝 Night Light  —  Hyprsunset color temperature filter (Off, Warm, Night)"
+        "󰓃 Switch Audio Output  —  Speakers, Bluetooth, Headset, HDMI"
+        "󰍬 Microphone Controls  —  Switch input device & toggle mute"
+        "󰑋 Screen / Window Recorder  —  Record desktop or active window"
+        "󰹑 Screen Snip & Search  —  Visual OCR & Google Lens search"
+        "󰏘 Wallpaper & Themes  —  Launch Wallpapers & Theme Pack switcher"
+        "󰌨 Top Bar Layout  —  Switch between 5 bar styles"
+        "󰘚 System Process Monitor  —  Btop interactive task manager"
+        "󰃨 Storage Cache Purge  —  Clear system thumbnails and cache"
+        "󰌌 Keybindings Cheatsheet  —  Browse all active Hyprland shortcuts"
+    )
+
+    local choice
+    choice=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i -theme "$ROFI_THEME" -p "󰕾 Quick Controls") || return 0
+    [[ -z "$choice" ]] && return 0
+
+    case "$choice" in
+        *"Volume:"*) menu_volume ;;
+        *"Brightness:"*) menu_brightness ;;
+        *"Night Light"*) menu_nightlight ;;
+        *"Switch Audio Output"*) "$HOME/.local/bin/ii-audio" ;;
+        *"Microphone Controls"*) action_mic_mute ;;
+        *"Screen / Window Recorder"*)
+            qs -c ii ipc call record toggle || bash "$HOME/.config/quickshell/ii/scripts/videos/record.sh" &
+            ;;
+        *"Screen Snip"*)
+            qs -c ii ipc call region screenshot || "$HOME/.config/hypr/hyprland/scripts/snip_to_search.sh" &
+            ;;
+        *"Wallpaper & Themes"*) "$HOME/.local/bin/ii-theme" theme ;;
+        *"Top Bar Layout"*) "$HOME/.local/bin/ii-bar-layout" ;;
+        *"System Process Monitor"*)
+            kitty -e btop &
+            ;;
+        *"Storage Cache Purge"*) purge_cache ;;
+        *"Keybindings Cheatsheet"*) "$HOME/.local/bin/ii-keybinds" ;;
+    esac
+}
+
+# --- Argument Dispatcher ---
+case "${1:-}" in
+    vol-up) action_vol_up "${2:-5}" ;;
+    vol-down) action_vol_down "${2:-5}" ;;
+    mute) action_vol_mute ;;
+    mic-mute) action_mic_mute ;;
+    bright-up) action_bright_up "${2:-5}" ;;
+    bright-down) action_bright_down "${2:-5}" ;;
+    volume) menu_volume ;;
+    brightness) menu_brightness ;;
+    nightlight) menu_nightlight ;;
+    *) menu_main ;;
+esac

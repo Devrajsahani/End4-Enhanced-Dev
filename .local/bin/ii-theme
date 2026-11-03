@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$HOME/Pictures/Wallpapers/ThemePacks"
+CONFIG="$HOME/.config/illogical-impulse/theme-packs"
+MANIFEST="$CONFIG/manifest.json"
+ACTIVE="$CONFIG/active-theme"
+MODEFILE="$CONFIG/state/mode"
+ROFI_THEME_THEME="$CONFIG/rofi-theme.rasi"
+ROFI_WALLPAPER_THEME="$CONFIG/rofi-wallpaper.rasi"
+ROFI_THEME="$CONFIG/rofi.rasi"
+SWITCHWALL="$HOME/.config/quickshell/ii/scripts/colors/switchwall.sh"
+GENERATED_COLORS="$HOME/.local/state/quickshell/user/generated/colors.json"
+notify() { command -v notify-send >/dev/null && notify-send -a "Theme switcher" "$1" "$2" || true; }
+choose() { rofi -dmenu -i -show-icons -p "$1" -theme "$ROFI_THEME" -no-custom; }
+
+apply_running_hyprland_colors() {
+    local active inactive
+    [[ -s "$GENERATED_COLORS" ]] || return 0
+    active=$(jq -er '.outline_variant | sub("^#"; "") | select(test("^[[:xdigit:]]{6}$"))' "$GENERATED_COLORS") || return 0
+    inactive=$(jq -er '.surface_container_low | sub("^#"; "") | select(test("^[[:xdigit:]]{6}$"))' "$GENERATED_COLORS") || return 0
+    if command -v hyprctl >/dev/null 2>&1; then
+        hyprctl eval "hl.config({ general = { col = { active_border = \"rgba(${active}99)\", inactive_border = \"rgba(${inactive}55)\" } } })" >/dev/null 2>&1 || true
+    fi
+}
+
+current_mode() {
+    if [[ -s "$MODEFILE" ]] && grep -qxE 'dark|light' "$MODEFILE"; then
+        cat "$MODEFILE"
+    elif command -v gsettings >/dev/null && [[ "$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null)" == *prefer-light* ]]; then
+        printf 'light\n'
+    else
+        printf 'dark\n'
+    fi
+}
+
+apply_wallpaper() {
+    local theme_id="$1" relative="$2" scheme="$3" mode image
+    mode=$(current_mode)
+    image="$ROOT/$relative"
+    if [[ ! -f "$image" ]]; then notify "Theme switch failed" "Missing wallpaper: $image"; return 1; fi
+    if ! "$SWITCHWALL" --image "$image" --type "$scheme" --mode "$mode"; then
+        notify "Theme switch failed" "Illogical Impulse could not apply the selected wallpaper. See its Quickshell log."; return 1
+    fi
+    mkdir -p "$CONFIG/state"
+    printf '%s\n' "$theme_id" > "$ACTIVE"
+    printf '%s\n' "$relative" > "$CONFIG/state/active-wallpaper-$theme_id"
+    apply_running_hyprland_colors
+    notify "Theme applied" "$(jq -r --arg id "$theme_id" '.themes[] | select(.id == $id) | .name' "$MANIFEST")"
+}
+
+set_mode() {
+    local requested="${2:-toggle}" mode id relative scheme
+    mode=$(current_mode)
+    case "$requested" in
+        toggle) [[ "$mode" == dark ]] && mode=light || mode=dark ;;
+        dark|light) mode="$requested" ;;
+        *) printf 'Usage: %s mode [dark|light|toggle]\n' "$0" >&2; return 2 ;;
+    esac
+    id=$(cat "$ACTIVE" 2>/dev/null || jq -r '.defaultTheme' "$MANIFEST")
+    scheme=$(jq -er --arg id "$id" '.themes[] | select(.id == $id) | .scheme' "$MANIFEST") || return 2
+    relative=$(cat "$CONFIG/state/active-wallpaper-$id" 2>/dev/null || true)
+    if [[ -z "$relative" || ! -f "$ROOT/$relative" ]]; then
+        relative=$(jq -er --arg id "$id" '.themes[] | select(.id == $id) | .wallpapers[0].file' "$MANIFEST") || return 2
+    fi
+    mkdir -p "$CONFIG/state"
+    if ! "$SWITCHWALL" --image "$ROOT/$relative" --type "$scheme" --mode "$mode"; then
+        notify "Appearance mode failed" "Illogical Impulse could not apply $mode mode. See its Quickshell log."; return 1
+    fi
+    printf '%s\n' "$mode" > "$MODEFILE"
+    apply_running_hyprland_colors
+    notify "Appearance updated" "Switched to $mode mode."
+}
+
+select_theme() {
+    local selected id scheme relative saved
+    selected=$(jq -r '.themes[] | [.name, (.cover // .wallpapers[0].file)] | @tsv' "$MANIFEST" |
+        while IFS=$'\t' read -r name rel; do printf '%s\0icon\x1f%s\n' "$name" "$ROOT/$rel"; done |
+        rofi -dmenu -i -show-icons -p "󰏘 Themes" -theme "$ROFI_THEME_THEME" -no-custom) || true
+    [[ -n "$selected" ]] || return 0
+    id=$(jq -r --arg name "$selected" '.themes[] | select(.name == $name) | .id' "$MANIFEST")
+    scheme=$(jq -r --arg id "$id" '.themes[] | select(.id == $id) | .scheme' "$MANIFEST")
+    saved="$CONFIG/state/active-wallpaper-$id"
+    if [[ -s "$saved" ]] && relative=$(cat "$saved") && [[ -f "$ROOT/$relative" ]]; then :
+    else relative=$(jq -r --arg id "$id" '.themes[] | select(.id == $id) | .wallpapers[0].file' "$MANIFEST"); fi
+    apply_wallpaper "$id" "$relative" "$scheme"
+}
+
+select_wallpaper() {
+    local id scheme selected relative theme_dir theme_name image
+    local -a wallpaper_files=()
+    id=$(cat "$ACTIVE" 2>/dev/null || jq -r '.defaultTheme' "$MANIFEST")
+    scheme=$(jq -r --arg id "$id" '.themes[] | select(.id == $id) | .scheme' "$MANIFEST")
+    theme_name=$(jq -er --arg id "$id" '.themes[] | select(.id == $id) | .name' "$MANIFEST") || return 2
+    theme_dir=$(jq -er --arg id "$id" '.themes[] | select(.id == $id) | .wallpapers[0].file | split("/")[0]' "$MANIFEST") || return 2
+    if [[ ! -d "$ROOT/$theme_dir" ]]; then
+        notify "Wallpaper picker" "Theme folder is missing: $ROOT/$theme_dir"
+        return 1
+    fi
+
+    # Discover files from the active theme's real folder
+    mapfile -d '' wallpaper_files < <(find "$ROOT/$theme_dir" -type f \
+        \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \
+        -o -iname '*.avif' -o -iname '*.bmp' -o -iname '*.tif' -o -iname '*.tiff' \
+        -o -iname '*.svg' \) -print0 | sort -z)
+    if (( ${#wallpaper_files[@]} == 0 )); then
+        notify "Wallpaper picker" "No supported wallpaper images found in $theme_dir"
+        return 0
+    fi
+
+    local map_file
+    map_file=$(mktemp)
+    trap 'rm -f "$map_file"' RETURN
+
+    selected=$(
+        for image in "${wallpaper_files[@]}"; do
+            rel="${image#"$ROOT"/}"
+            nice_name=$(jq -r --arg rel "$rel" '.themes[].wallpapers[]? | select(.file == $rel) | .name' "$MANIFEST" 2>/dev/null || true)
+            if [[ -z "$nice_name" || "$nice_name" == "null" ]]; then
+                nice_name=$(basename "$image" | sed -E 's/^[0-9]+[-_]?//; s/\.[^.]+$//; s/[-_]/ /g')
+            fi
+            printf '%s\t%s\n' "$nice_name" "$rel" >> "$map_file"
+            printf '%s\0icon\x1f%s\n' "$nice_name" "$image"
+        done | rofi -dmenu -i -show-icons -p "󰸉 Wallpapers" -theme "$ROFI_WALLPAPER_THEME" -no-custom
+    ) || true
+
+    [[ -n "$selected" ]] || return 0
+    relative=$(awk -F'\t' -v s="$selected" '$1 == s {print $2; exit}' "$map_file")
+    [[ -n "$relative" && -f "$ROOT/$relative" ]] || { notify "Wallpaper picker" "Selected file no longer exists: $selected"; return 1; }
+    apply_wallpaper "$id" "$relative" "$scheme"
+}
+
+apply_named() {
+    local id="${2:-}" scheme relative saved
+    [[ -n "$id" ]] || { printf 'Usage: %s apply <theme-id> [wallpaper-name]\n' "$0" >&2; return 2; }
+    scheme=$(jq -er --arg id "$id" '.themes[] | select(.id == $id) | .scheme' "$MANIFEST") || return 2
+    if [[ -n "${3:-}" ]]; then
+        relative=$(jq -er --arg id "$id" --arg name "$3" '.themes[] | select(.id == $id) | .wallpapers[] | select(.name == $name) | .file' "$MANIFEST") || return 2
+    else
+        saved="$CONFIG/state/active-wallpaper-$id"
+        if [[ -s "$saved" ]] && relative=$(cat "$saved") && [[ -f "$ROOT/$relative" ]]; then :
+        else relative=$(jq -er --arg id "$id" '.themes[] | select(.id == $id) | .wallpapers[0].file' "$MANIFEST"); fi
+    fi
+    apply_wallpaper "$id" "$relative" "$scheme"
+}
+
+validate() {
+    jq -e '.themes | length >= 6 and all(.[]; (.wallpapers | length >= 8))' "$MANIFEST" >/dev/null
+    while IFS= read -r rel; do
+        [[ -f "$ROOT/$rel" ]] || { printf 'Missing wallpaper: %s\n' "$rel" >&2; return 1; }
+    done < <(jq -r '.themes[].wallpapers[].file' "$MANIFEST")
+    rofi -dump-theme -theme "$ROFI_THEME_THEME" >/dev/null
+    rofi -dump-theme -theme "$ROFI_WALLPAPER_THEME" >/dev/null
+    printf 'OK: %s theme packs, %s local wallpapers, and Rofi theme syntax.\n' "$(jq '.themes | length' "$MANIFEST")" "$(jq '[.themes[].wallpapers[]] | length' "$MANIFEST")"
+}
+
+case "${1:-theme}" in
+    theme) select_theme ;;
+    wallpaper) select_wallpaper ;;
+    apply) apply_named "$@" ;;
+    mode) set_mode "$@" ;;
+    validate) validate ;;
+    *) printf 'Usage: %s [theme|wallpaper|mode [dark|light|toggle]|apply|validate]\n' "$0" >&2; exit 2 ;;
+esac

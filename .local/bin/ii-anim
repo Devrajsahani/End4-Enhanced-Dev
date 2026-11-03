@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+import os
+import shutil
+import subprocess
+import sys
+
+ANIM_DIR = os.path.expanduser("~/.config/hypr/custom/animations")
+ROFI_THEME = os.path.expanduser("~/.config/illogical-impulse/theme-packs/animations.rasi")
+STATE_FILE = os.path.join(ANIM_DIR, "current_preset")
+ACTIVE_FILE = os.path.join(ANIM_DIR, "active.lua")
+
+PRESETS = [
+    ("Fluid Dusky", "dusky.lua", "Showcase edition with smooth overshot curves"),
+    ("Bounce Physics", "bounce.lua", "Playful springy window entrance physics"),
+    ("Fast & Snappy", "fast.lua", "Instantaneous snappiness for high-speed workflows"),
+    ("Fade Only", "fade.lua", "Subtle alpha transitions with no window movement"),
+    ("Mechanical Linear", "mechanical.lua", "Robotic linear precision"),
+    ("Slow Motion", "slowmotion.lua", "Cinematic slow showcase easing"),
+    ("Rage & Snap", "rage.lua", "High-velocity aggressive snapping"),
+    ("Hallucination", "hallucination.lua", "Experimental wild spatial curves"),
+    ("Exaggerated Elastic", "exagurated.lua", "Deep bouncy elastic physics"),
+    ("Vertical Air", "vertical_air.lua", "Smooth vertical workspace scrolling"),
+    ("Minimal Easing", "minimal.lua", "Distraction-free calm transitions"),
+    ("Disabled (Zero Latency)", "disable.lua", "Completely bypass animations for raw speed")
+]
+
+def main():
+    current = "Fluid Dusky"
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE) as f:
+                current = f.read().strip()
+        except Exception:
+            pass
+
+    lines = []
+    sel_row = 0
+    for i, (name, file, desc) in enumerate(PRESETS):
+        if name == current:
+            sel_row = i
+            lines.append(f"✔ <b>{name}</b>  <span alpha='65%'>—</span>  <span alpha='80%'>{desc}</span>")
+        else:
+            lines.append(f"   <b>{name}</b>  <span alpha='65%'>—</span>  <span alpha='80%'>{desc}</span>")
+
+    menu_input = "\n".join(lines)
+    cmd = [
+        "rofi",
+        "-dmenu",
+        "-i",
+        "-no-custom",
+        "-markup-rows",
+        "-p", "󰑈 Animations",
+        "-theme", ROFI_THEME,
+        "-selected-row", str(sel_row),
+        "-format", "i"
+    ]
+
+    try:
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, _ = proc.communicate(input=menu_input)
+        if proc.returncode != 0 or not stdout.strip():
+            sys.exit(0)
+
+        idx = int(stdout.strip())
+        if 0 <= idx < len(PRESETS):
+            selected_name, selected_file, selected_desc = PRESETS[idx]
+            src = os.path.join(ANIM_DIR, selected_file)
+            if os.path.isfile(src):
+                shutil.copyfile(src, ACTIVE_FILE)
+                with open(STATE_FILE, "w") as f:
+                    f.write(selected_name + "\n")
+                
+                subprocess.run(["hyprctl", "reload"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run([
+                    "notify-send",
+                    "-a", "Hyprland Animations",
+                    "Animation preset applied",
+                    f"{selected_name}: {selected_desc}"
+                ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

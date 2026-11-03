@@ -1,0 +1,361 @@
+{
+  "version": 1,
+  "defaultTheme": "catppuccin-mocha",
+  "wallpaperRoot": "/home/dev/Pictures/Wallpapers/ThemePacks",
+  "themes": [
+    {
+      "id": "catppuccin-mocha",
+      "name": "Catppuccin Mocha Inspired",
+      "description": "Violet and deep-blue night scenes",
+      "scheme": "scheme-tonal-spot",
+      "wallpapers": [
+        {
+          "name": "Blue Hour",
+          "file": "Catppuccin-Mocha/01-blue-hour.jpg",
+          "source": "https://github.com/adarsh-67r/catppuccin-mocha-walls/blob/main/bluehour.jpg",
+          "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        },
+        {
+          "name": "Harbor at Dusk",
+          "file": "Catppuccin-Mocha/02-harbor-dusk.jpg",
+          "source": "https://github.com/adarsh-67r/catppuccin-mocha-walls/blob/main/city-on-water.jpg",
+          "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        },
+        {
+          "name": "Moonlit Forest",
+          "file": "Catppuccin-Mocha/03-moonlit-forest.jpg",
+          "source": "https://github.com/adarsh-67r/catppuccin-mocha-walls/blob/main/dark-forest.jpg",
+          "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        },
+        {
+          "name": "Lavender Peaks",
+          "file": "Catppuccin-Mocha/04-lavender-peaks.jpg",
+          "source": "https://github.com/adarsh-67r/catppuccin-mocha-walls/blob/main/mountain-range.jpg",
+          "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        },
+        {
+          "name": "Cabin in Snow",
+          "file": "Catppuccin-Mocha/05-cabin-2.jpg",
+          "source": "https://raw.githubusercontent.com/adarsh-67r/catppuccin-mocha-walls/main/cabin-2.jpg",
+          "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        },
+        {
+          "name": "Cliffside Path",
+          "file": "Catppuccin-Mocha/06-cliff-path.jpg",
+          "source": "https://raw.githubusercontent.com/adarsh-67r/catppuccin-mocha-walls/main/cliff-path.jpg",
+          "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        },
+        {
+          "name": "Cloud Coffee",
+          "file": "Catppuccin-Mocha/07-cloud-coffee.jpg",
+          "source": "https://raw.githubusercontent.com/adarsh-67r/catppuccin-mocha-walls/main/cloud-coffee.jpg",
+          "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        },
+        {
+          "name": "Dark Waves",
+          "file": "Catppuccin-Mocha/08-dark-waves.jpg",
+          "source": "https://raw.githubusercontent.com/adarsh-67r/catppuccin-mocha-walls/main/dark-waves.jpg",
+          "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        }
+      ],
+      "cover": "Catppuccin-Mocha/01-blue-hour.jpg"
+    },
+    {
+      "id": "tokyo-night",
+      "name": "Tokyo Night Inspired",
+      "description": "Neon streets and blue city light",
+      "scheme": "scheme-fidelity",
+      "wallpapers": [
+        {
+          "name": "Midnight Tokyo",
+          "file": "Tokyo-Night/01-midnight-tokyo.jpg",
+          "source": "https://github.com/tokyo-night/wallpapers/blob/main/night/abstract/lockscreen_00_3840x2160.png",
+          "repository": "https://github.com/tokyo-night/wallpapers"
+        },
+        {
+          "name": "Neon Street",
+          "file": "Tokyo-Night/02-neon-street.jpg",
+          "source": "https://github.com/tokyo-night/wallpapers/blob/main/misc/anime/neon-street_00_2880x1800.jpg",
+          "repository": "https://github.com/tokyo-night/wallpapers"
+        },
+        {
+          "name": "Night Cafe",
+          "file": "Tokyo-Night/03-night-cafe.jpg",
+          "source": "https://github.com/tokyo-night/wallpapers/blob/main/misc/cityscape/cafe-at-night_00_3840x2160.png",
+          "repository": "https://github.com/tokyo-night/wallpapers"
+        },
+        {
+          "name": "Neon Sign",
+          "file": "Tokyo-Night/04-neon-sign.jpg",
+          "source": "https://github.com/tokyo-night/wallpapers/blob/main/misc/cityscape/neon-sign_00_1920x1080.jpg",
+          "repository": "https://github.com/tokyo-night/wallpapers"
+        },
+        {
+          "name": "Arch Lines",
+          "file": "Tokyo-Night/05-arch-01-3840x2160.jpg",
+          "source": "https://raw.githubusercontent.com/tokyo-night/wallpapers/main/night/os/arch_01_3840x2160.png",
+          "repository": "https://github.com/tokyo-night/wallpapers"
+        },
+        {
+          "name": "Tokyo Minimal",
+          "file": "Tokyo-Night/06-gnome-00-3840x2160.jpg",
+          "source": "https://raw.githubusercontent.com/tokyo-night/wallpapers/main/night/minimal/gnome_00_3840x2160.png",
+          "repository": "https://github.com/tokyo-night/wallpapers"
+        },
+        {
+          "name": "Neon Geometry",
+          "file": "Tokyo-Night/07-i3wm-00-3840x2160.jpg",
+          "source": "https://raw.githubusercontent.com/tokyo-night/wallpapers/main/night/minimal/i3wm_00_3840x2160.png",
+          "repository": "https://github.com/tokyo-night/wallpapers"
+        },
+        {
+          "name": "Midnight Stripes",
+          "file": "Tokyo-Night/08-stripes-00-3840x2160.jpg",
+          "source": "https://raw.githubusercontent.com/tokyo-night/wallpapers/main/night/minimal/stripes_00_3840x2160.png",
+          "repository": "https://github.com/tokyo-night/wallpapers"
+        }
+      ],
+      "cover": "Tokyo-Night/02-neon-street.jpg"
+    },
+    {
+      "id": "gruvbox-dark",
+      "name": "Gruvbox Dark Inspired",
+      "description": "Warm amber, rust, and earthy landscapes",
+      "scheme": "scheme-expressive",
+      "wallpapers": [
+        {
+          "name": "Forest Cabin",
+          "file": "Gruvbox-Dark/01-forest-cabin.jpg",
+          "source": "https://github.com/vctrblck/gruvbox-wallpapers/blob/main/forest-hut.png",
+          "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        },
+        {
+          "name": "Ink Hills",
+          "file": "Gruvbox-Dark/02-ink-hills.jpg",
+          "source": "https://github.com/vctrblck/gruvbox-wallpapers/blob/main/chinese-hills.jpg",
+          "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        },
+        {
+          "name": "Warm Workshop",
+          "file": "Gruvbox-Dark/03-warm-workshop.jpg",
+          "source": "https://github.com/vctrblck/gruvbox-wallpapers/blob/main/comfy-room.jpg",
+          "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        },
+        {
+          "name": "Woodland Road",
+          "file": "Gruvbox-Dark/04-woodland-road.jpg",
+          "source": "https://github.com/vctrblck/gruvbox-wallpapers/blob/main/road.jpg",
+          "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        },
+        {
+          "name": "Lantern Glow",
+          "file": "Gruvbox-Dark/05-lantern.jpg",
+          "source": "https://raw.githubusercontent.com/vctrblck/gruvbox-wallpapers/main/lantern.jpg",
+          "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        },
+        {
+          "name": "Autumn Forest",
+          "file": "Gruvbox-Dark/06-forest.jpg",
+          "source": "https://raw.githubusercontent.com/vctrblck/gruvbox-wallpapers/main/forest.jpg",
+          "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        },
+        {
+          "name": "Quiet Hut",
+          "file": "Gruvbox-Dark/07-hut.jpg",
+          "source": "https://raw.githubusercontent.com/vctrblck/gruvbox-wallpapers/main/hut.jpg",
+          "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        },
+        {
+          "name": "Rainy Platform",
+          "file": "Gruvbox-Dark/08-platform.jpg",
+          "source": "https://raw.githubusercontent.com/vctrblck/gruvbox-wallpapers/main/platform.jpg",
+          "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        }
+      ],
+      "cover": "Gruvbox-Dark/01-forest-cabin.jpg"
+    },
+    {
+      "id": "everforest-dark",
+      "name": "Everforest Dark Inspired",
+      "description": "Forest greens, soft fog, and natural light",
+      "scheme": "scheme-content",
+      "wallpapers": [
+        {
+          "name": "Misty Forest",
+          "file": "Everforest-Dark/01-misty-forest.jpg",
+          "source": "https://github.com/Apeiros-46B/everforest-walls/blob/main/nature/fog_forest_alt_1.png",
+          "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        },
+        {
+          "name": "Forest Steps",
+          "file": "Everforest-Dark/02-forest-steps.jpg",
+          "source": "https://github.com/Apeiros-46B/everforest-walls/blob/main/nature/forest_stairs.jpg",
+          "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        },
+        {
+          "name": "Fog Valley",
+          "file": "Everforest-Dark/03-fog-valley.jpg",
+          "source": "https://github.com/Apeiros-46B/everforest-walls/blob/main/nature/fog_forest_alt_2.png",
+          "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        },
+        {
+          "name": "Kyoto at Dusk",
+          "file": "Everforest-Dark/04-kyoto-at-dusk.jpg",
+          "source": "https://github.com/Apeiros-46B/everforest-walls/blob/main/other/japanese_pedestrian_street.png",
+          "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        },
+        {
+          "name": "Green Canopy",
+          "file": "Everforest-Dark/05-green-forest-2.jpg",
+          "source": "https://raw.githubusercontent.com/Apeiros-46B/everforest-walls/main/nature/green_forest_2.png",
+          "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        },
+        {
+          "name": "Lake Trees",
+          "file": "Everforest-Dark/06-lake-trees.jpg",
+          "source": "https://raw.githubusercontent.com/Apeiros-46B/everforest-walls/main/nature/lake_trees.jpg",
+          "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        },
+        {
+          "name": "Ocean Mist",
+          "file": "Everforest-Dark/07-ocean-front-1.jpg",
+          "source": "https://raw.githubusercontent.com/Apeiros-46B/everforest-walls/main/nature/ocean_front_1.png",
+          "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        },
+        {
+          "name": "Japanese Store",
+          "file": "Everforest-Dark/08-japanese-store.jpg",
+          "source": "https://raw.githubusercontent.com/Apeiros-46B/everforest-walls/main/other/japanese_store.jpg",
+          "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        }
+      ],
+      "cover": "Everforest-Dark/01-misty-forest.jpg"
+    },
+    {
+      "id": "nord",
+      "name": "Nord Inspired",
+      "description": "Cool alpine blues, snow, and glacial light",
+      "scheme": "scheme-neutral",
+      "wallpapers": [
+        {
+          "name": "Nord Hills",
+          "file": "Nord/01-nord-hills.jpg",
+          "source": "https://github.com/linuxdotexe/nordic-wallpapers/blob/master/wallpapers/ign_nordhills.png",
+          "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        },
+        {
+          "name": "Quiet Lake",
+          "file": "Nord/02-quiet-lake.jpg",
+          "source": "https://github.com/linuxdotexe/nordic-wallpapers/blob/master/wallpapers/nord_lake.png",
+          "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        },
+        {
+          "name": "Blue Mountains",
+          "file": "Nord/03-blue-mountains.jpg",
+          "source": "https://github.com/linuxdotexe/nordic-wallpapers/blob/master/wallpapers/ign_mountains.jpg",
+          "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        },
+        {
+          "name": "Alpine Silhouettes",
+          "file": "Nord/04-alpine-silhouettes.jpg",
+          "source": "https://github.com/linuxdotexe/nordic-wallpapers/blob/master/wallpapers/nord_mountains.png",
+          "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        },
+        {
+          "name": "Nordic Morning",
+          "file": "Nord/05-ign-adwaita-morning.jpg",
+          "source": "https://raw.githubusercontent.com/linuxdotexe/nordic-wallpapers/master/dynamic-wallpapers/Adwaita/ign_adwaita-morning.jpg",
+          "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        },
+        {
+          "name": "Blue Hour Coast",
+          "file": "Nord/06-ign-carvan-1.jpg",
+          "source": "https://raw.githubusercontent.com/linuxdotexe/nordic-wallpapers/master/dynamic-wallpapers/Carvan/ign_Carvan-1.png",
+          "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        },
+        {
+          "name": "Snowy Valley",
+          "file": "Nord/07-ign-hills-1.jpg",
+          "source": "https://raw.githubusercontent.com/linuxdotexe/nordic-wallpapers/master/dynamic-wallpapers/Hills/ign_Hills-1.png",
+          "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        },
+        {
+          "name": "Mountain Twilight",
+          "file": "Nord/08-ign-twilight.jpg",
+          "source": "https://raw.githubusercontent.com/linuxdotexe/nordic-wallpapers/master/dynamic-wallpapers/ZorinMountain/ign_Twilight.jpg",
+          "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        }
+      ],
+      "cover": "Nord/02-quiet-lake.jpg"
+    },
+    {
+      "id": "cars-racing",
+      "name": "Cars & Racing",
+      "description": "F1, GT, and performance-car photography",
+      "scheme": "scheme-fidelity",
+      "wallpapers": [
+        {
+          "name": "Formula One: Button",
+          "file": "Cars-Racing/01-formulaone-button-1.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/FormulaOne_Button_1.jpg",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Formula One: Rosberg",
+          "file": "Cars-Racing/02-formulaone-rosberg-2.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/FormulaOne_Rosberg_2.jpg",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "GT40 Classic",
+          "file": "Cars-Racing/03-gt-40.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/GT-40.png",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Night Garage",
+          "file": "Cars-Racing/04-garage.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/Garage.jpg",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Assetto Corsa",
+          "file": "Cars-Racing/05-assetto-corsa-8.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/Assetto_Corsa_8.jpg",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Racing Line",
+          "file": "Cars-Racing/06-car-2.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/car-2.png",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Daylight Car Study",
+          "file": "Cars-Racing/07-daylight-car-landscape.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/daylight-car-landscape.png",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Car Under City Lights",
+          "file": "Cars-Racing/08-ign-car.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/ign_car.png",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Pixel Racer",
+          "file": "Cars-Racing/09-pixel-car.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/pixel-car.png",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Racing Wreck",
+          "file": "Cars-Racing/10-car-wreck.jpg",
+          "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/car-wreck.png",
+          "repository": "https://github.com/harilvfs/wallpapers"
+        }
+      ],
+      "cover": "Cars-Racing/04-garage.jpg"
+    }
+  ]
+}

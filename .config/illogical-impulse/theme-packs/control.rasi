@@ -1,0 +1,100 @@
+@import "rofi-colors.rasi"
+
+configuration {
+    show-icons: false;
+    matching: "fuzzy";
+    sort: false;
+    font: "Google Sans Flex 11";
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+    click-to-exit: true;
+}
+
+* {
+    background-color: transparent;
+    text-color: @on-surface;
+}
+
+window {
+    width: 720px;
+    height: 520px;
+    padding: 22px;
+    border: 1px;
+    border-radius: 24px;
+    border-color: @outline;
+    background-color: @surface;
+}
+
+mainbox {
+    spacing: 12px;
+    children: [ "inputbar", "listview", "textbox-help" ];
+}
+
+inputbar {
+    padding: 10px 16px;
+    border: 1px;
+    border-radius: 14px;
+    border-color: @outline;
+    background-color: @surface-container;
+    spacing: 12px;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    text-color: @primary;
+    font: "Google Sans Flex Bold 12";
+}
+
+entry {
+    text-color: @on-surface;
+    placeholder: "Select action or type 0-100 to set directly...";
+    placeholder-color: @outline;
+}
+
+listview {
+    columns: 1;
+    lines: 9;
+    cycle: true;
+    dynamic: true;
+    layout: vertical;
+    fixed-columns: true;
+    fixed-height: false;
+    spacing: 6px;
+    background-color: transparent;
+}
+
+element {
+    orientation: horizontal;
+    children: [ "element-text" ];
+    spacing: 12px;
+    padding: 9px 14px;
+    border: 1px;
+    border-radius: 12px;
+    border-color: transparent;
+    background-color: @surface-container;
+    cursor: pointer;
+}
+
+element selected {
+    border: 1px;
+    border-color: @primary;
+    background-color: @primary-container;
+    text-color: @on-primary-container;
+}
+
+element-text {
+    horizontal-align: 0.0;
+    vertical-align: 0.5;
+    text-color: inherit;
+    markup: false;
+    font: "Google Sans Flex 11";
+}
+
+textbox-help {
+    expand: false;
+    str: "󰌑 Enter to Apply  •  Type % number directly  •  󱊷 Esc to Exit";
+    horizontal-align: 0.5;
+    text-color: @outline;
+    font: "Google Sans Flex 10";
+    padding: 4px 0 0 0;
+}
