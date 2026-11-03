@@ -10,12 +10,11 @@ hl.bind("SUPER + ALT + W", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-theme wallpap
 hl.bind("SUPER + ALT + T", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-theme theme"), {description = "Appearance: Choose theme pack"})
 
 -- Productivity & System Switchers
-hl.bind("SUPER + Slash", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-keybinds"), {description = "Help: Search keybindings & cheatsheet"})
 hl.bind("SUPER + F1", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-keybinds"), {description = "Help: Search keybindings & cheatsheet"})
 hl.bind("SUPER + ALT + K", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-keybinds"), {description = "Help: Search keybindings & cheatsheet"})
 hl.bind("SUPER + ALT + A", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-anim"), {description = "Appearance: Switch animation profile"})
 hl.bind("SUPER + ALT + C", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control"), {description = "System: Quick Controls & Productivity Hub"})
-hl.bind("SUPER + ALT + S", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-slider all"), {description = "Media: Floating GUI Sliders Hub (Volume/Brightness/Nightlight)"})
+hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-slider all"), {description = "Media: Floating GUI Sliders Hub (Volume/Brightness/Nightlight)"})
 hl.bind("SUPER + ALT + V", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-slider volume"), {description = "Media: Floating Volume Slider"})
 hl.bind("SUPER + ALT + N", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-slider nightlight"), {description = "Display: Floating Night Light Slider"})
 hl.bind("SUPER + ALT + O", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-audio"), {description = "Media: Switch audio output or microphone"})
@@ -25,7 +24,6 @@ hl.bind("SUPER + ALT + Up", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control vol-
 hl.bind("SUPER + ALT + Down", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control vol-down 5"), {description = "Volume: Decrease (-5%)", repeating = true})
 hl.bind("SUPER + ALT + Right", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control bright-up 5"), {description = "Brightness: Increase (+5%)", repeating = true})
 hl.bind("SUPER + ALT + Left", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control bright-down 5"), {description = "Brightness: Decrease (-5%)", repeating = true})
-hl.bind("SUPER + ALT + M", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control mute"), {description = "Volume: Toggle mute"})
 
 -- Precise Hardware Media & Backlight Keys (Step 1% with ALT, 5% standard)
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control vol-up 5"), {description = "Volume: Hardware raise (+5%)", locked = true, repeating = true})
