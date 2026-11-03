@@ -1,10 +1,39 @@
 #!/usr/bin/env python3
+"""
+II-AUDIO: Modern Interactive Card-Based Audio Output & Microphone Switcher
+Target: PipeWire / WirePlumber + Rofi 2.x
+"""
 import os
 import re
 import subprocess
 import sys
+import html
 
 ROFI_THEME = os.path.expanduser("~/.config/illogical-impulse/theme-packs/audio.rasi")
+
+def clean_device_name(raw_name, section):
+    name = raw_name.strip()
+    # Normalize common hardware strings
+    if "Analog Stereo" in name:
+        if section == "Output":
+            return "Built-in Speakers & Headphones"
+        else:
+            return "Internal System Microphone"
+    elif "HDMI" in name or "Digital Stereo" in name or "DisplayPort" in name:
+        return "Digital HDMI / DisplayPort Audio"
+    elif "Headphone" in name or "Headset" in name:
+        if section == "Output":
+            return "Headphones / Headset Output"
+        else:
+            return "Headset Microphone"
+    elif "USB" in name:
+        if section == "Output":
+            return f"USB Audio: {name.split()[0]}"
+        else:
+            return f"USB Mic: {name.split()[0]}"
+    elif "Bluetooth" in name or "bluez" in name.lower():
+        return f"Bluetooth: {name}"
+    return name
 
 def get_devices():
     try:
@@ -17,46 +46,54 @@ def get_devices():
     devices = []
 
     for line in lines:
-        if "Sinks:" in line:
+        if line.strip().startswith("Video") or line.strip().startswith("Settings"):
+            break
+        elif "Sinks:" in line:
             section = "sink"
             continue
         elif "Sources:" in line:
             section = "source"
             continue
-        elif "Filters:" in line or "Streams:" in line or "Video" in line:
+        elif "Filters:" in line or "Streams:" in line:
             section = None
             continue
 
         if section in ("sink", "source"):
-            # Match line like: │  *   54. Ryzen HD Audio Controller Analog Stereo [vol: 0.52]
-            # or:              │      65. AD107 High Definition Audio Controller Digital Stereo (HDMI) [vol: 0.40]
             m = re.search(r'([*]?)\s*(\d+)\.\s+(.*?)(?:\s+\[vol:\s*([0-9.]+)(\s*MUTED)?\])?$', line)
             if m:
                 is_active = bool(m.group(1))
                 dev_id = m.group(2)
-                name = m.group(3).strip()
+                raw_name = m.group(3).strip()
                 vol = m.group(4)
                 muted = bool(m.group(5))
                 
-                vol_str = ""
+                sec_label = "Output" if section == "sink" else "Input"
+                clean_name = clean_device_name(raw_name, sec_label)
+
+                vol_str = "--"
                 if vol:
-                    vol_pct = int(float(vol) * 100)
-                    vol_str = f"({vol_pct}%{' MUTED' if muted else ''})"
+                    vol_pct = int(float(vol) * 100 + 0.5)
+                    vol_str = f"{vol_pct}%{' [MUTED]' if muted else ''}"
 
                 icon = "󰓃"
-                if "HDMI" in name or "Digital" in name:
+                if "HDMI" in clean_name or "Digital" in clean_name:
                     icon = "󰍹"
-                elif "Headphone" in name or "Headset" in name:
+                elif "Headphone" in clean_name or "Headset" in clean_name:
                     icon = "󰋋"
+                elif "Bluetooth" in clean_name:
+                    icon = "󰂯"
                 elif section == "source":
                     icon = "󰍬"
 
                 devices.append({
                     "id": dev_id,
-                    "name": name,
-                    "section": section.capitalize(),
+                    "type": "device",
+                    "raw_name": raw_name,
+                    "name": clean_name,
+                    "section": sec_label,
                     "active": is_active,
                     "vol": vol_str,
+                    "muted": muted,
                     "icon": icon
                 })
 
@@ -64,17 +101,51 @@ def get_devices():
 
 def main():
     devices = get_devices()
-    if not devices:
-        sys.exit(0)
+    actions = [
+        {
+            "type": "action",
+            "action": "toggle_sink_mute",
+            "icon": "󰝟",
+            "name": "Toggle Output Mute",
+            "subtitle": "Mute or unmute default speaker output"
+        },
+        {
+            "type": "action",
+            "action": "toggle_source_mute",
+            "icon": "󰍭",
+            "name": "Toggle Microphone Mute",
+            "subtitle": "Mute or unmute default microphone input"
+        },
+        {
+            "type": "action",
+            "action": "mixer",
+            "icon": "󰓃",
+            "name": "Open Full Audio Mixer",
+            "subtitle": "Launch Pavucontrol Volume Mixer"
+        }
+    ]
 
+    all_items = devices + actions
     menu_lines = []
     sel_row = 0
-    for i, dev in enumerate(devices):
-        check = "✔ " if dev["active"] else "   "
-        if dev["active"] and sel_row == 0:
-            sel_row = i
-        
-        line = f"{check}{dev['icon']}  <b>{dev['name']}</b>  <span alpha='65%'>[{dev['section']}]</span>  <span alpha='80%'>{dev['vol']}</span>"
+
+    for i, item in enumerate(all_items):
+        if item["type"] == "device":
+            if item["active"] and sel_row == 0:
+                sel_row = i
+            
+            badge = "<span foreground='#b2d189'><b>[ACTIVE ✔]</b></span>" if item["active"] else "<span alpha='65%'>[Click to Switch]</span>"
+            vol_badge = f"<span foreground='#f2a8c5'>󰕾 {item['vol']}</span>" if not item["muted"] else "<span foreground='#ffb4ab'>󰝟 MUTED</span>"
+            
+            line = (
+                f"<span font='13'><b>{item['icon']}  {html.escape(item['name'])}</b></span>\n"
+                f"<span alpha='70%'>{item['section']}</span>  •  {badge}  •  {vol_badge}"
+            )
+        else:
+            line = (
+                f"<span font='13'><b>{item['icon']}  {html.escape(item['name'])}</b></span>\n"
+                f"<span alpha='70%'>Quick Action</span>  •  <span alpha='65%'>{item['subtitle']}</span>"
+            )
         menu_lines.append(line)
 
     menu_input = "\n".join(menu_lines)
@@ -84,7 +155,7 @@ def main():
         "-i",
         "-no-custom",
         "-markup-rows",
-        "-p", "󰓃 Audio",
+        "-p", "󰓃 Audio Devices",
         "-theme", ROFI_THEME,
         "-selected-row", str(sel_row),
         "-format", "i"
@@ -97,18 +168,29 @@ def main():
             sys.exit(0)
 
         idx = int(stdout.strip())
-        if 0 <= idx < len(devices):
-            selected = devices[idx]
-            subprocess.run(["wpctl", "set-default", selected["id"]], check=True)
-            subprocess.run([
-                "notify-send",
-                "-a", "Audio Switcher",
-                "Default Audio Changed",
-                f"{selected['icon']} {selected['name']} is now the active {selected['section'].lower()}."
-            ])
+        if 0 <= idx < len(all_items):
+            chosen = all_items[idx]
+            if chosen["type"] == "device":
+                subprocess.run(["wpctl", "set-default", chosen["id"]], check=True)
+                subprocess.run([
+                    "notify-send",
+                    "-a", "Audio Switcher",
+                    "-i", "audio-speakers",
+                    "Audio Device Activated",
+                    f"{chosen['icon']} {chosen['name']} is now the default {chosen['section'].lower()}."
+                ])
+            elif chosen["type"] == "action":
+                act = chosen["action"]
+                if act == "toggle_sink_mute":
+                    subprocess.run(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+                    subprocess.run(["notify-send", "-a", "Audio Switcher", "Output Mute Toggled"])
+                elif act == "toggle_source_mute":
+                    subprocess.run(["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"])
+                    subprocess.run(["notify-send", "-a", "Audio Switcher", "Microphone Mute Toggled"])
+                elif act == "mixer":
+                    subprocess.Popen(["pavucontrol"])
     except Exception:
         sys.exit(0)
 
 if __name__ == "__main__":
     main()
-

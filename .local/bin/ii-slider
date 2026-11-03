@@ -1,0 +1,303 @@
+#!/usr/bin/env python3
+"""
+II-SLIDER: Floating GUI Sliders for Volume, Brightness, and Night Light.
+Inspired by Dusky Linux & crafted for End4 Hyprland rice.
+"""
+import sys
+import os
+import signal
+import subprocess
+import re
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk, Gdk, GLib
+
+CSS = b"""
+window.slider-window {
+    background-color: transparent;
+}
+
+.slider-card {
+    background-color: rgba(30, 22, 28, 0.88);
+    border: 1px solid rgba(255, 180, 205, 0.22);
+    border-radius: 20px;
+    padding: 16px 22px 14px 22px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.slider-header {
+    margin-bottom: 6px;
+}
+
+.icon-label {
+    font-size: 18px;
+    color: #f2a8c5;
+}
+
+.value-label {
+    font-family: 'Google Sans Flex', 'Rubik', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #e8d0da;
+}
+
+scale.pink-slider {
+    margin-top: 4px;
+    margin-bottom: 10px;
+}
+
+scale.pink-slider trough {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    min-height: 6px;
+    border: none;
+}
+
+scale.pink-slider highlight {
+    background: linear-gradient(90deg, #d880a6, #f3a8c7);
+    border-radius: 4px;
+    min-height: 6px;
+}
+
+scale.pink-slider slider {
+    background-color: #f7bed4;
+    border-radius: 50%;
+    min-width: 18px;
+    min-height: 18px;
+    margin: -6px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+    border: none;
+}
+
+scale.pink-slider slider:hover {
+    background-color: #ffd4e5;
+    min-width: 20px;
+    min-height: 20px;
+    margin: -7px 0;
+}
+
+button.close-btn {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 5px 24px;
+    color: #e5d4dc;
+    font-family: 'Google Sans Flex', 'Rubik', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 150ms ease;
+}
+
+button.close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 180, 205, 0.4);
+    color: #ffffff;
+}
+
+button.close-btn:active {
+    background-color: rgba(242, 168, 197, 0.3);
+}
+"""
+
+def get_current_volume():
+    try:
+        raw = subprocess.check_output(["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"], stderr=subprocess.DEVNULL).decode()
+        m = re.search(r'Volume:\s+([0-9.]+)', raw)
+        if m:
+            return int(float(m.group(1)) * 100 + 0.5)
+    except Exception:
+        pass
+    return 75
+
+def get_current_brightness():
+    try:
+        raw = subprocess.check_output(["brightnessctl", "-m"], stderr=subprocess.DEVNULL).decode()
+        # Format: intel_backlight,backlight,40,40%,100
+        parts = raw.strip().split(',')
+        if len(parts) >= 4:
+            return int(parts[3].replace('%', ''))
+    except Exception:
+        pass
+    return 50
+
+def get_current_nightlight():
+    # Range 1000 to 6500 Kelvin. Default to 5000 if running, or 6500 (off)
+    try:
+        # Check running hyprsunset process args
+        out = subprocess.check_output(["pgrep", "-a", "hyprsunset"], stderr=subprocess.DEVNULL).decode()
+        m = re.search(r'-t\s+(\d+)', out)
+        if m:
+            return int(m.group(1))
+    except Exception:
+        pass
+    return 5000
+
+class SliderCard(Gtk.Box):
+    def __init__(self, mode, on_close_callback):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        self.mode = mode
+        self.on_close_callback = on_close_callback
+        self.get_style_context().add_class("slider-card")
+        self.set_size_request(340, -1)
+
+        # Header: Icon (Left) & Numerical Value (Right)
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        header.get_style_context().add_class("slider-header")
+
+        icon_text = "󰕾"
+        min_val, max_val, step, cur_val = 0, 100, 1, 75
+
+        if mode == "volume":
+            icon_text = "󰕾"
+            cur_val = get_current_volume()
+            min_val, max_val = 0, 100
+        elif mode == "brightness":
+            icon_text = "󰃠"
+            cur_val = get_current_brightness()
+            min_val, max_val = 1, 100
+        elif mode == "nightlight":
+            icon_text = "󰡬"
+            cur_val = get_current_nightlight()
+            min_val, max_val, step = 1000, 6500, 50
+
+        self.icon_label = Gtk.Label(label=icon_text)
+        self.icon_label.get_style_context().add_class("icon-label")
+        header.pack_start(self.icon_label, False, False, 0)
+
+        self.value_label = Gtk.Label(label=str(cur_val))
+        self.value_label.get_style_context().add_class("value-label")
+        header.pack_end(self.value_label, False, False, 0)
+
+        self.pack_start(header, False, False, 0)
+
+        # Slider (Horizontal scale)
+        self.adj = Gtk.Adjustment(value=cur_val, lower=min_val, upper=max_val, step_increment=step, page_increment=step*5)
+        self.scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=self.adj)
+        self.scale.set_draw_value(False)
+        self.scale.set_hexpand(True)
+        self.scale.get_style_context().add_class("pink-slider")
+        self.scale.connect("value-changed", self.on_value_changed)
+        self.pack_start(self.scale, False, False, 0)
+
+        # Centered Close Button
+        btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        btn_box.set_halign(Gtk.Align.CENTER)
+        self.close_btn = Gtk.Button(label="Close")
+        self.close_btn.get_style_context().add_class("close-btn")
+        self.close_btn.connect("clicked", lambda b: self.on_close_callback())
+        btn_box.pack_start(self.close_btn, False, False, 0)
+        self.pack_start(btn_box, False, False, 0)
+
+    def on_value_changed(self, scale):
+        val = int(round(scale.get_value()))
+        self.value_label.set_text(str(val))
+
+        if self.mode == "volume":
+            subprocess.run(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", f"{val}%"], stderr=subprocess.DEVNULL)
+        elif self.mode == "brightness":
+            subprocess.run(["brightnessctl", "s", f"{val}%"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        elif self.mode == "nightlight":
+            # Set hyprsunset temperature
+            subprocess.run(["pkill", "-f", "hyprsunset"], stderr=subprocess.DEVNULL)
+            if val < 6500:
+                subprocess.Popen(["hyprsunset", "-t", str(val)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+class SliderWindow(Gtk.Window):
+    def __init__(self, mode="all"):
+        super().__init__(type=Gtk.WindowType.TOPLEVEL)
+        GLib.set_prgname("ii-slider")
+        GLib.set_application_name("ii-slider")
+        self.set_title("ii-slider")
+        self.set_role("ii-slider")
+        self.set_app_paintable(True)
+        self.set_resizable(False)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.get_style_context().add_class("slider-window")
+
+        # Enable visual transparency on compositor
+        screen = self.get_screen()
+        visual = screen.get_rgba_visual()
+        if visual and screen.is_composited():
+            self.set_visual(visual)
+
+        self.connect("key-press-event", self.on_key_press)
+
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        main_box.set_margin_top(14)
+        main_box.set_margin_bottom(14)
+        main_box.set_margin_start(14)
+        main_box.set_margin_end(14)
+
+        if mode == "all":
+            main_box.pack_start(SliderCard("nightlight", self.close_window), False, False, 0)
+            main_box.pack_start(SliderCard("brightness", self.close_window), False, False, 0)
+            main_box.pack_start(SliderCard("volume", self.close_window), False, False, 0)
+        else:
+            main_box.pack_start(SliderCard(mode, self.close_window), False, False, 0)
+
+        self.add(main_box)
+
+    def close_window(self):
+        Gtk.main_quit()
+
+    def on_key_press(self, widget, event):
+        if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_q):
+            self.close_window()
+            return True
+        return False
+
+def main():
+    mode = "all"
+    if len(sys.argv) > 1:
+        arg = sys.argv[1].lower().strip()
+        if arg in ("vol", "volume"):
+            mode = "volume"
+        elif arg in ("bright", "brightness"):
+            mode = "brightness"
+        elif arg in ("night", "nightlight", "sunset"):
+            mode = "nightlight"
+
+    # Toggle behavior: if already open, kill existing and exit
+    pid_file = "/tmp/ii-slider.pid"
+    if os.path.exists(pid_file):
+        try:
+            with open(pid_file, "r") as f:
+                old_pid = int(f.read().strip())
+            os.kill(old_pid, signal.SIGTERM)
+            os.remove(pid_file)
+            sys.exit(0)
+        except Exception:
+            if os.path.exists(pid_file):
+                os.remove(pid_file)
+
+    with open(pid_file, "w") as f:
+        f.write(str(os.getpid()))
+
+    # Apply CSS
+    style_provider = Gtk.CssProvider()
+    style_provider.load_from_data(CSS)
+    Gtk.StyleContext.add_provider_for_screen(
+        Gdk.Screen.get_default(),
+        style_provider,
+        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+    )
+
+    win = SliderWindow(mode)
+    win.connect("destroy", lambda w: Gtk.main_quit())
+    win.show_all()
+
+    try:
+        Gtk.main()
+    finally:
+        if os.path.exists(pid_file):
+            try:
+                os.remove(pid_file)
+            except Exception:
+                pass
+
+if __name__ == "__main__":
+    main()

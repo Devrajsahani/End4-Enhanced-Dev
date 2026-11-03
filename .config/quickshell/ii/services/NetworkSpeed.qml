@@ -12,6 +12,7 @@ Singleton {
     property real upSpeedBytes: 0
     property string downSpeedString: "0 KB/s"
     property string upSpeedString: "0 KB/s"
+    property string compactBothString: "↓0K ↑0K"
     property string primaryInterface: ""
 
     property real previousRxBytes: 0
@@ -23,13 +24,26 @@ Singleton {
             return "0 KB/s";
         }
         if (bytesPerSec < 1024) {
-            return Math.round(bytesPerSec) + " B/s";
+            return "0 KB/s";
         } else if (bytesPerSec < 1024 * 1024) {
-            return (bytesPerSec / 1024).toFixed(1) + " KB/s";
+            const kb = bytesPerSec / 1024;
+            return kb >= 100 ? Math.round(kb) + " KB/s" : kb.toFixed(1) + " KB/s";
         } else if (bytesPerSec < 1024 * 1024 * 1024) {
             return (bytesPerSec / (1024 * 1024)).toFixed(1) + " MB/s";
         } else {
             return (bytesPerSec / (1024 * 1024 * 1024)).toFixed(2) + " GB/s";
+        }
+    }
+
+    function formatCompact(bytesPerSec) {
+        if (!Number.isFinite(bytesPerSec) || bytesPerSec < 1024) {
+            return "0K";
+        } else if (bytesPerSec < 1024 * 1024) {
+            return Math.round(bytesPerSec / 1024) + "K";
+        } else if (bytesPerSec < 1024 * 1024 * 1024) {
+            return (bytesPerSec / (1024 * 1024)).toFixed(1) + "M";
+        } else {
+            return (bytesPerSec / (1024 * 1024 * 1024)).toFixed(1) + "G";
         }
     }
 
@@ -97,6 +111,7 @@ Singleton {
                         root.upSpeedBytes = dTx / dt;
                         root.upSpeedString = root.formatSpeed(root.upSpeedBytes);
                     }
+                    root.compactBothString = `↓${root.formatCompact(root.downSpeedBytes)} ↑${root.formatCompact(root.upSpeedBytes)}`;
                 }
             }
 

@@ -43,8 +43,11 @@ Choose dynamically between 5 curated top bar configurations:
 
 | Keybinding | Action | Description |
 | :--- | :--- | :--- |
+| `SUPER + ALT + S` | **Sliders Hub** | Floating GUI Sliders (Volume, Brightness, Night Light) |
+| `SUPER + ALT + V` | **Volume Slider** | Floating Interactive Volume Slider Card |
+| `SUPER + ALT + N` | **Night Light Slider** | Floating Night Light Temperature Slider Card |
 | `SUPER + ALT + C` | **Quick Controls Hub** | Open Volume, Brightness & Tools Rofi menu |
-| `SUPER + ALT + V` | **Volume Controls** | Open Volume Presets & Rofi Slider |
+| `SUPER + ALT + O` | **Audio & Mic Devices**| Interactive Multi-Column PipeWire Card Switcher |
 | `SUPER + ALT + Up / Down` | **Volume Adjust** | Increase / Decrease Volume (+/- 5%) |
 | `SUPER + ALT + Right / Left`| **Brightness Adjust** | Increase / Decrease Brightness (+/- 5%) |
 | `SUPER + ALT + M` | **Mute Audio** | Toggle audio mute with OSD |
@@ -52,7 +55,6 @@ Choose dynamically between 5 curated top bar configurations:
 | `SUPER + ALT + W` | **Wallpaper Selector** | 4×2 Card Grid Wallpaper Picker |
 | `SUPER + ALT + T` | **Theme Pack Selector**| 3×2 Deck Theme Switcher |
 | `SUPER + ALT + A` | **Animation Profile** | Switch between 12 fluid curves |
-| `SUPER + ALT + O` | **Audio Devices** | Switch PipeWire audio output / mic |
 | `SUPER + /` or `SUPER + F1` | **Keybinds Cheatsheet**| Live interactive shortcut cheatsheet |
 | `XF86AudioRaise / Lower` | **Hardware Volume** | Standard 5% volume step |
 | `ALT + XF86Audio...` | **Precise Volume** | Precise 1% volume step |
@@ -126,3 +128,4 @@ Choose dynamically between 5 curated top bar configurations:
 ## 🎨 Acknowledgements & Credits
 - **[End4](https://github.com/end-4/dots-hyprland)**: Upstream Illogical Impulse Hyprland & Quickshell rice.
 - **[Dusky Linux](https://github.com/dusklinux/dusky)**: Inspiration for precise media controls, animation curves, audio routers, and quick productivity workflows.
+

@@ -81,3 +81,4 @@ echo "  Installation Complete!"
 echo "  Explore keybindings: press Super + / or Super + Alt + K"
 echo "  Explore quick controls: press Super + Alt + C"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+

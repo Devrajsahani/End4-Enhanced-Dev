@@ -112,6 +112,7 @@ menu_volume() {
     cur_int=$(get_vol_int)
 
     local options=(
+        "󰕾 Open Interactive Slider Card..."
         "󰝟 Toggle Mute  (Currently: ${current})"
         "󰕾 Set to 100%  (Maximum)"
         "󰕾 Set to 80%   (Loud)"
@@ -142,6 +143,7 @@ menu_volume() {
     fi
 
     case "$choice" in
+        *"Open Interactive Slider"*) "$HOME/.local/bin/ii-slider" volume & ;;
         *"Toggle Mute"*) action_vol_mute ;;
         *"100%"*) wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 100%; osd_notify "Volume" "audio-volume-high" 100 "Volume: 100%" ;;
         *"80%"*)  wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 80%;  osd_notify "Volume" "audio-volume-high" 80 "Volume: 80%" ;;
@@ -164,6 +166,7 @@ menu_brightness() {
     cur_int=$(get_bright_int)
 
     local options=(
+        "󰃠 Open Interactive Slider Card..."
         "󰃠 Set to 100%  (Maximum Brightness)"
         "󰃠 Set to 75%   (Bright Indoor)"
         "󰃠 Set to 50%   (Balanced)"
@@ -193,6 +196,7 @@ menu_brightness() {
     fi
 
     case "$choice" in
+        *"Open Interactive Slider"*) "$HOME/.local/bin/ii-slider" brightness & ;;
         *"100%"*) brightnessctl s 100% >/dev/null 2>&1; osd_notify "Brightness" "display-brightness-symbolic" 100 "Brightness: 100%" ;;
         *"75%"*)  brightnessctl s 75% >/dev/null 2>&1;  osd_notify "Brightness" "display-brightness-symbolic" 75 "Brightness: 75%" ;;
         *"50%"*)  brightnessctl s 50% >/dev/null 2>&1;  osd_notify "Brightness" "display-brightness-symbolic" 50 "Brightness: 50%" ;;
@@ -262,6 +266,7 @@ menu_main() {
     bright_info=$(get_bright_int)
 
     local options=(
+        "󰡬 Floating Sliders GUI  —  Interactive popup cards (Volume / Brightness / Night Light)"
         "󰕾 Volume: ${vol_info}  —  Presets (100%, 80%, 60%, 40%, 20%), Mute, Fine tune"
         "󰃠 Brightness: ${bright_info}%  —  Presets (100%, 75%, 50%, 25%, 10%), Fine tune"
         "󰃝 Night Light  —  Hyprsunset color temperature filter (Off, Warm, Night)"
@@ -281,6 +286,7 @@ menu_main() {
     [[ -z "$choice" ]] && return 0
 
     case "$choice" in
+        *"Floating Sliders"*) "$HOME/.local/bin/ii-slider" all & ;;
         *"Volume:"*) menu_volume ;;
         *"Brightness:"*) menu_brightness ;;
         *"Night Light"*) menu_nightlight ;;
@@ -315,3 +321,4 @@ case "${1:-}" in
     nightlight) menu_nightlight ;;
     *) menu_main ;;
 esac
+
