@@ -80,7 +80,7 @@
             "workspaceZoom": 1.03
         },
         "thumbnailPath": "",
-        "wallpaperPath": "/home/dev/Pictures/Wallpapers/ThemePacks/Gruvbox-Dark/wallhaven-5yk9o1_1920x1080.png",
+        "wallpaperPath": "/home/dev/Pictures/Wallpapers/ThemePacks/Gruvbox-Dark/wallhaven-qr327r_3840x2160.png",
         "widgets": {
             "clock": {
                 "cookie": {
@@ -119,8 +119,8 @@
                 "showOnlyWhenLocked": false,
                 "style": "digital",
                 "styleLocked": "digital",
-                "x": 714.49609375,
-                "y": 419.25390625
+                "x": 746.7421875,
+                "y": 419.16796875
             },
             "screenTime": {
                 "enable": true,
