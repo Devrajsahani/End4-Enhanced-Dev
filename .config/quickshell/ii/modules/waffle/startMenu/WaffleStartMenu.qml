@@ -108,15 +108,25 @@ Scope {
             GlobalStates.searchOpen = !GlobalStates.searchOpen;
         }
     }
+    Timer {
+        id: superTapTimer
+        interval: 320
+        repeat: false
+        onTriggered: {
+            GlobalStates.superReleaseMightTrigger = false;
+        }
+    }
     GlobalShortcut {
         name: "searchToggleRelease"
         description: "Toggles search on release"
 
         onPressed: {
             GlobalStates.superReleaseMightTrigger = true;
+            superTapTimer.restart();
         }
 
         onReleased: {
+            superTapTimer.stop();
             if (!GlobalStates.superReleaseMightTrigger) {
                 GlobalStates.superReleaseMightTrigger = true;
                 return;
@@ -126,9 +136,10 @@ Scope {
     }
     GlobalShortcut {
         name: "searchToggleReleaseInterrupt"
-        description: "Interrupts possibility of search being toggled on release. " + "This is necessary because GlobalShortcut.onReleased in quickshell triggers whether or not you press something else while holding the key. " + "To make sure this works consistently, use binditn = MODKEYS, catchall in an automatically triggered submap that includes everything."
+        description: "Interrupts possibility of search being toggled on release."
 
         onPressed: {
+            superTapTimer.stop();
             GlobalStates.superReleaseMightTrigger = false;
         }
     }

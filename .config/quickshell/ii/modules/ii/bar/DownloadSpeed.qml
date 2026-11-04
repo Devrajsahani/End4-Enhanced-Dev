@@ -71,10 +71,4 @@ Item {
             }
         }
     }
-
-    StyledToolTip {
-        text: `↓ Download: ${NetworkSpeed.downSpeedString}\n↑ Upload: ${NetworkSpeed.upSpeedString}` + 
-              (NetworkSpeed.primaryInterface ? `\nInterface: ${NetworkSpeed.primaryInterface}` : "") +
-              `\n(Click to toggle compact dual view • Right-click for Btop)`
-    }
 }

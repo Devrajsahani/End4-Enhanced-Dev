@@ -1,8 +1,8 @@
 -- User custom keybindings for Hyprland & QuickShell Rice
 -- Config editing & Display profiles
 hl.bind("CTRL+SUPER+ALT+Slash", hl.dsp.exec_cmd("xdg-open ~/.config/hypr/custom/keybinds.lua"), {description = "System: Edit user keybinds"})
-hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/display-switch.sh"), {description = "Display: Choose monitor profile"})
-hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/display-switch.sh"), {description = "Display: Choose monitor profile"})
+hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-display"), {description = "Display: Choose monitor profile"})
+hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-display"), {description = "Display: Choose monitor profile"})
 
 -- Rofi Appearance Pickers (Modernized Grids & Cards)
 hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-bar-layout"), {description = "Appearance: Choose top bar layout"})

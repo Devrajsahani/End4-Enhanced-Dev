@@ -1,0 +1,101 @@
+@import "rofi-colors.rasi"
+
+configuration {
+    show-icons: false;
+    matching: "fuzzy";
+    sort: false;
+    font: "Google Sans Flex 11.5";
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+    click-to-exit: true;
+}
+
+* {
+    background-color: transparent;
+    text-color: @on-surface;
+    outline-variant: @surface-container;
+}
+
+window {
+    width: 780px;
+    height: 330px;
+    padding: 24px;
+    border: 1px;
+    border-radius: 24px;
+    border-color: @outline;
+    background-color: @surface;
+}
+
+mainbox {
+    spacing: 14px;
+    children: [ "inputbar", "listview", "textbox-help" ];
+}
+
+inputbar {
+    padding: 10px 16px;
+    border: 1px;
+    border-radius: 14px;
+    border-color: @outline;
+    background-color: @surface-container;
+    spacing: 12px;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    text-color: @primary;
+    font: "Google Sans Flex Bold 12";
+}
+
+entry {
+    text-color: @on-surface;
+    placeholder: "Select display layout profile...";
+    placeholder-color: @outline;
+}
+
+listview {
+    columns: 1;
+    lines: 3;
+    cycle: true;
+    dynamic: true;
+    layout: vertical;
+    fixed-columns: true;
+    fixed-height: false;
+    spacing: 10px;
+    background-color: transparent;
+}
+
+element {
+    orientation: horizontal;
+    children: [ "element-text" ];
+    spacing: 12px;
+    padding: 16px 20px;
+    border: 1.5px;
+    border-radius: 16px;
+    border-color: @surface-container;
+    background-color: @surface-container;
+    cursor: pointer;
+}
+
+element selected {
+    border: 2px;
+    border-color: @primary;
+    background-color: @primary-container;
+    text-color: @on-primary-container;
+}
+
+element-text {
+    horizontal-align: 0.0;
+    vertical-align: 0.5;
+    text-color: inherit;
+    markup: true;
+    font: "Google Sans Flex 12";
+}
+
+textbox-help {
+    expand: false;
+    str: "󰌑 Click or Press Enter to Apply Profile  •  󰁔 ↑ / ↓ to Navigate  •  󱊷 Esc to Exit";
+    horizontal-align: 0.5;
+    text-color: @outline;
+    font: "Google Sans Flex 10";
+    padding: 4px 0 0 0;
+}

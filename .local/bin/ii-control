@@ -270,6 +270,7 @@ menu_main() {
         "󰕾 Volume: ${vol_info}  —  Presets (100%, 80%, 60%, 40%, 20%), Mute, Fine tune"
         "󰃠 Brightness: ${bright_info}%  —  Presets (100%, 75%, 50%, 25%, 10%), Fine tune"
         "󰃝 Night Light  —  Hyprsunset color temperature filter (Off, Warm, Night)"
+        "󰍹 Display Profiles  —  Switch Laptop Screen, Extend Displays, External Monitor"
         "󰓃 Switch Audio Output  —  Speakers, Bluetooth, Headset, HDMI"
         "󰍬 Microphone Controls  —  Switch input device & toggle mute"
         "󰑋 Screen / Window Recorder  —  Record desktop or active window"
@@ -290,6 +291,7 @@ menu_main() {
         *"Volume:"*) menu_volume ;;
         *"Brightness:"*) menu_brightness ;;
         *"Night Light"*) menu_nightlight ;;
+        *"Display Profiles"*) "$HOME/.local/bin/ii-display" ;;
         *"Switch Audio Output"*) "$HOME/.local/bin/ii-audio" ;;
         *"Microphone Controls"*) action_mic_mute ;;
         *"Screen / Window Recorder"*)
@@ -319,6 +321,7 @@ case "${1:-}" in
     volume) menu_volume ;;
     brightness) menu_brightness ;;
     nightlight) menu_nightlight ;;
+    display) "$HOME/.local/bin/ii-display" ;;
     *) menu_main ;;
 esac
 
