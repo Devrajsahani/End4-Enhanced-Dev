@@ -1,9 +1,14 @@
 * {
-    surface: {{colors.surface.default.hex}};
-    surface-container: {{colors.surface_container.default.hex}};
+    surface: #{{colors.surface.default.hex_stripped}}d9;
+    surface-blur: #{{colors.surface.default.hex_stripped}}b3;
+    surface-container: #{{colors.surface_container.default.hex_stripped}}99;
+    surface-container-high: #{{colors.surface_container_high.default.hex_stripped}}b3;
     on-surface: {{colors.on_surface.default.hex}};
+    on-surface-variant: {{colors.on_surface_variant.default.hex}};
     primary: {{colors.primary.default.hex}};
-    primary-container: {{colors.primary_container.default.hex}};
+    primary-glow: #{{colors.primary.default.hex_stripped}}55;
+    primary-container: #{{colors.primary_container.default.hex_stripped}}cc;
     on-primary-container: {{colors.on_primary_container.default.hex}};
-    outline: {{colors.outline.default.hex}};
+    outline: #{{colors.outline.default.hex_stripped}}33;
+    outline-focus: #{{colors.primary.default.hex_stripped}}88;
 }

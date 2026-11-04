@@ -16,24 +16,24 @@ configuration {
 }
 
 window {
-    width: 820px;
-    height: 480px;
-    padding: 22px;
-    border: 1px;
-    border-radius: 24px;
-    border-color: @outline;
+    width: 840px;
+    height: 500px;
+    padding: 24px;
+    border: 1.5px;
+    border-radius: 26px;
+    border-color: @primary-glow;
     background-color: @surface;
 }
 
 mainbox {
-    spacing: 12px;
+    spacing: 14px;
     children: [ "inputbar", "listview", "textbox-help" ];
 }
 
 inputbar {
-    padding: 10px 16px;
+    padding: 12px 18px;
     border: 1px;
-    border-radius: 14px;
+    border-radius: 18px;
     border-color: @outline;
     background-color: @surface-container;
     spacing: 12px;
@@ -48,7 +48,7 @@ prompt {
 entry {
     text-color: @on-surface;
     placeholder: "Click or select audio device to activate...";
-    placeholder-color: @outline;
+    placeholder-color: @on-surface-variant;
 }
 
 listview {
@@ -59,7 +59,7 @@ listview {
     layout: vertical;
     fixed-columns: true;
     fixed-height: false;
-    spacing: 10px;
+    spacing: 12px;
     background-color: transparent;
 }
 
@@ -68,16 +68,16 @@ element {
     children: [ "element-text" ];
     spacing: 6px;
     padding: 14px 18px;
-    border: 1.5px;
-    border-radius: 16px;
-    border-color: @outline-variant;
+    border: 1px;
+    border-radius: 18px;
+    border-color: @outline;
     background-color: @surface-container;
     cursor: pointer;
 }
 
 element selected {
     border: 1.5px;
-    border-color: @primary;
+    border-color: @outline-focus;
     background-color: @primary-container;
     text-color: @on-primary-container;
 }
@@ -94,7 +94,7 @@ textbox-help {
     expand: false;
     str: "󰌑 Click or Press Enter to Switch Device  •  󰁔 Navigate  •  󱊷 Esc to Exit";
     horizontal-align: 0.5;
-    text-color: @outline;
+    text-color: @on-surface-variant;
     font: "Google Sans Flex 10";
-    padding: 4px 0 0 0;
+    padding: 6px 0 0 0;
 }

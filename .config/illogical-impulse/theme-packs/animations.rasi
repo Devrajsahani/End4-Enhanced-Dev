@@ -16,24 +16,24 @@ configuration {
 }
 
 window {
-    width: 680px;
-    height: 540px;
-    padding: 22px;
-    border: 1px;
-    border-radius: 24px;
-    border-color: @outline;
+    width: 720px;
+    height: 560px;
+    padding: 24px;
+    border: 1.5px;
+    border-radius: 26px;
+    border-color: @primary-glow;
     background-color: @surface;
 }
 
 mainbox {
-    spacing: 12px;
+    spacing: 14px;
     children: [ "inputbar", "listview", "textbox-help" ];
 }
 
 inputbar {
-    padding: 10px 16px;
+    padding: 12px 18px;
     border: 1px;
-    border-radius: 14px;
+    border-radius: 18px;
     border-color: @outline;
     background-color: @surface-container;
     spacing: 12px;
@@ -48,7 +48,7 @@ prompt {
 entry {
     text-color: @on-surface;
     placeholder: "Choose Hyprland animation style...";
-    placeholder-color: @outline;
+    placeholder-color: @on-surface-variant;
 }
 
 listview {
@@ -59,7 +59,7 @@ listview {
     layout: vertical;
     fixed-columns: true;
     fixed-height: false;
-    spacing: 6px;
+    spacing: 8px;
     background-color: transparent;
 }
 
@@ -67,17 +67,17 @@ element {
     orientation: horizontal;
     children: [ "element-text" ];
     spacing: 12px;
-    padding: 9px 14px;
+    padding: 11px 16px;
     border: 1px;
-    border-radius: 12px;
-    border-color: transparent;
+    border-radius: 16px;
+    border-color: @outline;
     background-color: @surface-container;
     cursor: pointer;
 }
 
 element selected {
-    border: 1px;
-    border-color: @primary;
+    border: 1.5px;
+    border-color: @outline-focus;
     background-color: @primary-container;
     text-color: @on-primary-container;
 }
@@ -94,8 +94,7 @@ textbox-help {
     expand: false;
     str: "󰌑 Switch Animation  •  󰁔 Navigate  •  󱊷 Cancel";
     horizontal-align: 0.5;
-    text-color: @outline;
+    text-color: @on-surface-variant;
     font: "Google Sans Flex 10";
-    padding: 4px 0 0 0;
+    padding: 6px 0 0 0;
 }
-

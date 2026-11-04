@@ -17,24 +17,24 @@ configuration {
 }
 
 window {
-    width: 900px;
-    height: 500px;
-    padding: 20px;
-    border: 1px;
-    border-radius: 24px;
-    border-color: @outline;
+    width: 920px;
+    height: 520px;
+    padding: 24px;
+    border: 1.5px;
+    border-radius: 26px;
+    border-color: @primary-glow;
     background-color: @surface;
 }
 
 mainbox {
-    spacing: 12px;
+    spacing: 14px;
     children: [ "inputbar", "listview", "textbox-help" ];
 }
 
 inputbar {
-    padding: 10px 16px;
+    padding: 12px 18px;
     border: 1px;
-    border-radius: 14px;
+    border-radius: 18px;
     border-color: @outline;
     background-color: @surface-container;
     spacing: 12px;
@@ -49,11 +49,11 @@ prompt {
 entry {
     text-color: @on-surface;
     placeholder: "Search theme packs...";
-    placeholder-color: @outline;
+    placeholder-color: @on-surface-variant;
 }
 
 num-filtered-rows {
-    text-color: @outline;
+    text-color: @on-surface-variant;
     expand: false;
     vertical-align: 0.5;
 }
@@ -66,32 +66,32 @@ listview {
     layout: vertical;
     fixed-columns: true;
     fixed-height: false;
-    spacing: 12px;
+    spacing: 14px;
     background-color: transparent;
 }
 
 element {
     orientation: vertical;
     children: [ "element-icon", "element-text" ];
-    spacing: 8px;
-    padding: 10px 8px 8px 8px;
+    spacing: 10px;
+    padding: 12px 10px 10px 10px;
     border: 1px;
-    border-radius: 16px;
-    border-color: transparent;
+    border-radius: 20px;
+    border-color: @outline;
     background-color: @surface-container;
     cursor: pointer;
 }
 
 element selected {
-    border: 2px;
-    border-color: @primary;
+    border: 1.5px;
+    border-color: @outline-focus;
     background-color: @primary-container;
     text-color: @on-primary-container;
 }
 
 element-icon {
-    size: 105px;
-    border-radius: 10px;
+    size: 110px;
+    border-radius: 14px;
     horizontal-align: 0.5;
     vertical-align: 0.5;
 }
@@ -100,14 +100,14 @@ element-text {
     horizontal-align: 0.5;
     vertical-align: 0.5;
     text-color: inherit;
-    font: "Google Sans Flex Medium 10.5";
+    font: "Google Sans Flex Medium 11";
 }
 
 textbox-help {
     expand: false;
     str: "󰌑 Apply Theme  •  󰁔 Navigate  •   Filter  •  󱊷 Cancel";
     horizontal-align: 0.5;
-    text-color: @outline;
+    text-color: @on-surface-variant;
     font: "Google Sans Flex 10";
-    padding: 4px 0 0 0;
+    padding: 6px 0 0 0;
 }

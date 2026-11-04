@@ -48,10 +48,9 @@ hl.bind("SHIFT + SUPER + ALT + Slash", hl.dsp.exec_cmd("qs -p $HOME/.config/quic
 -- hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"),
 --     { locked = true, repeating = true })
 
-hl.bind("SUPER + W", hl.dsp.global("quickshell:wallpaperSelectorToggle"),
-    { description = "Shell: Change wallpaper" })
-hl.bind("SUPER + R", hl.dsp.global("quickshell:wallpaperSelectorToggle"),
-    { description = "Shell: Choose wallpaper" })
+-- Wallpaper selector is managed via modern grid picker on SUPER + ALT + W
+hl.bind("SUPER + W", hl.dsp.global("quickshell:wallpaperSelectorToggle"))
+hl.bind("SUPER + R", hl.dsp.global("quickshell:wallpaperSelectorToggle"))
 hl.bind("CTRL + SUPER + SHIFT + D", hl.dsp.global("quickshell:toggleLightDark"),
     { description = "Shell: Toggle light/dark mode" })
 hl.bind("SUPER + W", hl.dsp.exec_cmd(qsIsAlive .. " || " .. qsScripts .. "/colors/switchwall.sh"))

@@ -38,38 +38,63 @@ Singleton {
         property bool darkmode: true
         property bool transparent: false
         property color m3background: "#141313"
+        Behavior on m3background { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onBackground: "#e6e1e1"
+        Behavior on m3onBackground { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3surface: "#141313"
+        Behavior on m3surface { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3surfaceDim: "#141313"
         property color m3surfaceBright: "#3a3939"
         property color m3surfaceContainerLowest: "#0f0e0e"
+        Behavior on m3surfaceContainerLowest { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3surfaceContainerLow: "#1c1b1c"
+        Behavior on m3surfaceContainerLow { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3surfaceContainer: "#201f20"
+        Behavior on m3surfaceContainer { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3surfaceContainerHigh: "#2b2a2a"
+        Behavior on m3surfaceContainerHigh { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3surfaceContainerHighest: "#363435"
+        Behavior on m3surfaceContainerHighest { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onSurface: "#e6e1e1"
+        Behavior on m3onSurface { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3surfaceVariant: "#49464a"
+        Behavior on m3surfaceVariant { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onSurfaceVariant: "#cbc5ca"
+        Behavior on m3onSurfaceVariant { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3inverseSurface: "#e6e1e1"
         property color m3inverseOnSurface: "#313030"
         property color m3outline: "#948f94"
+        Behavior on m3outline { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3outlineVariant: "#49464a"
+        Behavior on m3outlineVariant { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3shadow: "#000000"
         property color m3scrim: "#000000"
         property color m3surfaceTint: "#cbc4cb"
         property color m3primary: "#cbc4cb"
+        Behavior on m3primary { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onPrimary: "#322f34"
+        Behavior on m3onPrimary { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3primaryContainer: "#2d2a2f"
+        Behavior on m3primaryContainer { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onPrimaryContainer: "#bcb6bc"
+        Behavior on m3onPrimaryContainer { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3inversePrimary: "#615d63"
         property color m3secondary: "#cac5c8"
+        Behavior on m3secondary { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onSecondary: "#323032"
+        Behavior on m3onSecondary { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3secondaryContainer: "#4d4b4d"
+        Behavior on m3secondaryContainer { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onSecondaryContainer: "#ece6e9"
+        Behavior on m3onSecondaryContainer { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3tertiary: "#d1c3c6"
+        Behavior on m3tertiary { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onTertiary: "#372e30"
+        Behavior on m3onTertiary { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3tertiaryContainer: "#31292b"
+        Behavior on m3tertiaryContainer { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3onTertiaryContainer: "#c1b4b7"
+        Behavior on m3onTertiaryContainer { ColorAnimation { duration: 450; easing.type: Easing.InOutCubic } }
         property color m3error: "#ffb4ab"
         property color m3onError: "#690005"
         property color m3errorContainer: "#93000a"

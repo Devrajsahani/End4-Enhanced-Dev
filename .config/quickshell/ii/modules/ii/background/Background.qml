@@ -167,6 +167,8 @@ Variants {
                 visible: opacity > 0 && !!bgRoot.previousWallpaperPath && !blurLoader.active && !bgRoot.wallpaperSafetyTriggered && !bgRoot.wallpaperIsVideo
                 source: bgRoot.previousWallpaperPath
                 opacity: 1 - bgRoot.wallpaperTransitionProgress
+                scale: 1.0 + (bgRoot.wallpaperTransitionProgress * 0.02)
+                transformOrigin: Item.Center
                 x: wallpaper.x
                 y: wallpaper.y
                 width: wallpaper.width
@@ -182,6 +184,8 @@ Variants {
                 id: wallpaper
                 visible: opacity > 0 && !blurLoader.active && !bgRoot.wallpaperIsVideo
                 opacity: (status === Image.Ready && !bgRoot.wallpaperIsVideo) ? bgRoot.wallpaperTransitionProgress : 0
+                scale: 1.03 - (bgRoot.wallpaperTransitionProgress * 0.03)
+                transformOrigin: Item.Center
                 asynchronous: true
                 cache: true
                 smooth: true

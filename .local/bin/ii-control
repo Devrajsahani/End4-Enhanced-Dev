@@ -49,59 +49,33 @@ osd_notify() {
 }
 
 # --- Direct Actions (CLI / Keybindings) ---
+# Note: osd_notify calls silenced per user request for silent adjustments
 action_vol_up() {
     local step="${1:-5}"
     wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ "${step}%+"
-    local v
-    v=$(get_vol_int)
-    osd_notify "Volume" "audio-volume-high" "$v" "Volume: ${v}%"
 }
 
 action_vol_down() {
     local step="${1:-5}"
     wpctl set-volume @DEFAULT_AUDIO_SINK@ "${step}%-"
-    local v
-    v=$(get_vol_int)
-    osd_notify "Volume" "audio-volume-low" "$v" "Volume: ${v}%"
 }
 
 action_vol_mute() {
     wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-    local v raw
-    v=$(get_vol_int)
-    raw=$(get_vol_info)
-    if [[ "$raw" == *"[MUTED]"* ]]; then
-        osd_notify "Volume" "audio-volume-muted" 0 "Audio Muted" "Volume: ${v}%"
-    else
-        osd_notify "Volume" "audio-volume-high" "$v" "Audio Unmuted" "Volume: ${v}%"
-    fi
 }
 
 action_mic_mute() {
     wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
-    local raw
-    raw=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null || echo "")
-    if [[ "$raw" == *"[MUTED]"* ]]; then
-        osd_notify "Microphone" "microphone-sensitivity-muted" 0 "Microphone Muted"
-    else
-        osd_notify "Microphone" "microphone-sensitivity-high" 100 "Microphone Active"
-    fi
 }
 
 action_bright_up() {
     local step="${1:-5}"
     brightnessctl s "${step}%+" >/dev/null 2>&1 || true
-    local b
-    b=$(get_bright_int)
-    osd_notify "Brightness" "display-brightness-symbolic" "$b" "Brightness: ${b}%"
 }
 
 action_bright_down() {
     local step="${1:-5}"
     brightnessctl s "${step}%-" >/dev/null 2>&1 || true
-    local b
-    b=$(get_bright_int)
-    osd_notify "Brightness" "display-brightness-symbolic" "$b" "Brightness: ${b}%"
 }
 
 # --- Rofi Sub-menus ---
