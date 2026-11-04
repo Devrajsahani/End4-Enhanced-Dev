@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""
+ii-leetcode-fetch: Fetches LeetCode daily coding challenge and optional user stats.
+Outputs JSON for Quickshell consumption.
+"""
+import sys
+import json
+import urllib.request
+import os
+
+CACHE_DIR = os.path.expanduser("~/.local/state/quickshell/user/generated")
+CACHE_FILE = os.path.join(CACHE_DIR, "leetcode_daily.json")
+
+def fetch_data(username=""):
+    url = "https://leetcode.com/graphql"
+    daily_query = """
+    query {
+      activeDailyCodingChallengeQuestion {
+        date
+        link
+        question {
+          frontendQuestionId: questionFrontendId
+          title
+          titleSlug
+          difficulty
+          acRate
+          topicTags {
+            name
+          }
+        }
+      }
+    }
+    """
+    
+    result = {
+        "status": "success",
+        "daily": {
+            "title": "Minimum Operations to Make Elements Within K Subarrays Equal",
+            "id": "3505",
+            "difficulty": "Hard",
+            "acRate": 55.8,
+            "link": "https://leetcode.com/problems/minimum-operations-to-make-elements-within-k-subarrays-equal/",
+            "date": "2026-11-04",
+            "tags": ["Array", "Hash Table", "Dynamic Programming"]
+        },
+        "user": {
+            "username": username or "Developer",
+            "totalSolved": 0,
+            "easy": 0,
+            "medium": 0,
+            "hard": 0
+        }
+    }
+
+    try:
+        req = urllib.request.Request(
+            url,
+            data=json.dumps({"query": daily_query}).encode("utf-8"),
+            headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64)"}
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            daily_raw = data.get("data", {}).get("activeDailyCodingChallengeQuestion", {})
+            q = daily_raw.get("question", {})
+            if q:
+                link = daily_raw.get("link", "")
+                if link and not link.startswith("http"):
+                    link = f"https://leetcode.com{link}"
+                tags = [t.get("name", "") for t in q.get("topicTags", []) if t.get("name")]
+                result["daily"] = {
+                    "title": q.get("title", "Daily Challenge"),
+                    "id": q.get("frontendQuestionId", ""),
+                    "difficulty": q.get("difficulty", "Medium"),
+                    "acRate": round(float(q.get("acRate", 50.0)), 1),
+                    "link": link,
+                    "date": daily_raw.get("date", ""),
+                    "tags": tags[:4]
+                }
+    except Exception as e:
+        result["status"] = "cached_fallback"
+
+    if username and username != "Developer":
+        user_query = """
+        query getUserProfile($username: String!) {
+          matchedUser(username: $username) {
+            username
+            submitStatsGlobal {
+              acSubmissionNum {
+                difficulty
+                count
+              }
+            }
+          }
+        }
+        """
+        try:
+            req_u = urllib.request.Request(
+                url,
+                data=json.dumps({"query": user_query, "variables": {"username": username}}).encode("utf-8"),
+                headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64)"}
+            )
+            with urllib.request.urlopen(req_u, timeout=4) as resp:
+                u_data = json.loads(resp.read().decode("utf-8"))
+                user_match = u_data.get("data", {}).get("matchedUser")
+                if user_match:
+                    subs = user_match.get("submitStatsGlobal", {}).get("acSubmissionNum", [])
+                    stats_map = {item["difficulty"]: item["count"] for item in subs if "difficulty" in item}
+                    result["user"] = {
+                        "username": username,
+                        "totalSolved": stats_map.get("All", 0),
+                        "easy": stats_map.get("Easy", 0),
+                        "medium": stats_map.get("Medium", 0),
+                        "hard": stats_map.get("Hard", 0)
+                    }
+        except Exception:
+            pass
+
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    try:
+        with open(CACHE_FILE, "w") as f:
+            json.dump(result, f, indent=2)
+    except Exception:
+        pass
+
+    return result
+
+if __name__ == "__main__":
+    u = sys.argv[1] if len(sys.argv) > 1 else ""
+    out = fetch_data(u)
+    print(json.dumps(out))
+

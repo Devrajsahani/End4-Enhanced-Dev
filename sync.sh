@@ -51,7 +51,7 @@ done
 
 # .local/bin custom scripts
 mkdir -p "$REPO_DIR/.local/bin"
-for script in ii-anim ii-audio ii-bar-layout ii-control ii-display ii-keybinds ii-slider ii-spotlight ii-theme; do
+for script in ii-anim ii-audio ii-bar-layout ii-control ii-display ii-keybinds ii-slider ii-spotlight ii-theme ii-github-fetch ii-leetcode-fetch; do
     if [[ -f "$HOME/.local/bin/$script" ]]; then
         cp -p "$HOME/.local/bin/$script" "$REPO_DIR/.local/bin/"
     fi

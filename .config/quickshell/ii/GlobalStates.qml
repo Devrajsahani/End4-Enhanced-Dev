@@ -30,6 +30,8 @@ Singleton {
     property bool superReleaseMightTrigger: true
     property bool calendarPopupOpen: false
     property int calendarDeckTab: 0
+    property bool devDeckOpen: false
+    property int devDeckTab: 0
     property bool wallpaperSelectorOpen: false
     property bool workspaceShowNumbers: false
 

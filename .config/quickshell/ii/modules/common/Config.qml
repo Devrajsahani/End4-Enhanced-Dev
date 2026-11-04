@@ -80,6 +80,19 @@ Singleton {
 
             property string panelFamily: "ii" // "ii", "waffle"
 
+            property JsonObject customWidgets: JsonObject {
+                property int spotlightWidth: 720
+                property int spotlightHeight: 560
+                property int slidersWidth: 380
+                property int netSpeedWidth: 72
+                property int devDeckWidth: 520
+                property int devDeckHeight: 500
+                property int bottomGroupHeight: 350
+                property string githubUsername: "Devrajsahani"
+                property string leetcodeUsername: "Devrajsahani"
+                property string activeRepoPath: "/home/dev/End4-Enhanced-Dev"
+            }
+
             property JsonObject policies: JsonObject {
                 property int ai: 1 // 0: No | 1: Yes | 2: Local
                 property int weeb: 1 // 0: No | 1: Open | 2: Closet

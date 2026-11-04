@@ -510,6 +510,33 @@ Item { // Bar content region
                 }
             }
 
+            BarGroup { // Developer & Student Productivity Hub pill
+                surfaceVisible: !root.unifiedControls && root.selectedBarLayout !== "minimal"
+                Layout.alignment: Qt.AlignVCenter
+                padding: 4
+
+                RippleButton {
+                    id: devDeckPillButton
+                    implicitWidth: 36
+                    implicitHeight: 28
+                    buttonRadius: Appearance.rounding.full
+                    colBackground: GlobalStates.devDeckOpen ? Appearance.colors.colPrimaryContainer : "transparent"
+                    colBackgroundHover: Appearance.colors.colLayer1Hover
+                    onClicked: GlobalStates.devDeckOpen = !GlobalStates.devDeckOpen
+
+                    contentItem: MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "terminal"
+                        iconSize: Appearance.font.pixelSize.large
+                        color: GlobalStates.devDeckOpen ? Appearance.colors.colPrimary : Appearance.colors.colOnLayer1
+                    }
+
+                    StyledToolTip {
+                        text: Translation.tr("Developer Hub (To-Do, GitHub, LeetCode)\nShortcut: Super + Alt + D")
+                    }
+                }
+            }
+
             BarGroup {
                 surfaceVisible: !root.unifiedControls && root.selectedBarLayout !== "minimal"
                 visible: root.selectedBarLayout !== "minimal"

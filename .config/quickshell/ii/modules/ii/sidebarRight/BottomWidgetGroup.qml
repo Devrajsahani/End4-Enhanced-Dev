@@ -13,7 +13,7 @@ Rectangle {
     radius: Appearance.rounding.normal
     color: Appearance.colors.colLayer1
     clip: true
-    implicitHeight: collapsed ? collapsedBottomWidgetGroupRow.implicitHeight : 350
+    implicitHeight: collapsed ? collapsedBottomWidgetGroupRow.implicitHeight : (Config.options?.customWidgets?.bottomGroupHeight ?? 350)
     property int selectedTab: Persistent.states.sidebar.bottomGroup.tab
     property int previousIndex: -1
     property bool collapsed: Persistent.states.sidebar.bottomGroup.collapsed
@@ -29,6 +29,18 @@ Rectangle {
             "name": Translation.tr("To Do"),
             "icon": "done_outline",
             "widget": "todo/TodoWidget.qml"
+        },
+        {
+            "type": "github",
+            "name": Translation.tr("GitHub"),
+            "icon": "commit",
+            "widget": "../devDeck/GithubWidget.qml"
+        },
+        {
+            "type": "leetcode",
+            "name": Translation.tr("LeetCode"),
+            "icon": "code",
+            "widget": "../devDeck/LeetcodeWidget.qml"
         },
         {
             "type": "timer",

@@ -17,6 +17,7 @@ hl.bind("SUPER + F1", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-keybinds"), {descr
 hl.bind("SUPER + ALT + K", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-keybinds"), {description = "Help: Search keybindings & cheatsheet"})
 hl.bind("SUPER + ALT + A", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-anim"), {description = "Appearance: Switch animation profile"})
 hl.bind("SUPER + ALT + C", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control"), {description = "System: Quick Controls & Productivity Hub"})
+hl.bind("SUPER + ALT + D", hl.dsp.global("quickshell:devDeckToggle"), {description = "App: Developer & Study Hub (To-Do/GitHub/LeetCode)"})
 hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-slider all"), {description = "Media: Floating GUI Sliders Hub (Volume/Brightness/Nightlight)"})
 hl.bind("SUPER + ALT + V", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-slider volume"), {description = "Media: Floating Volume Slider"})
 hl.bind("SUPER + ALT + N", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-slider nightlight"), {description = "Display: Floating Night Light Slider"})

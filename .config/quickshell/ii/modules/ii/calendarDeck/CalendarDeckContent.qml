@@ -17,8 +17,8 @@ import qs.modules.ii.sidebarRight.pomodoro
 Rectangle {
     id: root
 
-    implicitWidth: 780
-    implicitHeight: 520
+    implicitWidth: Config.options?.customWidgets?.calendarDeckWidth ?? 780
+    implicitHeight: Config.options?.customWidgets?.calendarDeckHeight ?? 520
     radius: Appearance.rounding.normal
     color: Appearance.colors.colLayer0
     border.width: 1

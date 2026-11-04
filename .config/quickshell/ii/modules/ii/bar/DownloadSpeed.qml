@@ -11,9 +11,9 @@ Item {
 
     property bool showBoth: false
 
-    // Strictly fixed width & height so the pill NEVER expands, shrinks or distracts
-    width: 86
-    implicitWidth: 86
+    // Configurable fixed width so the pill size can be tuned in Settings
+    width: Config.options?.customWidgets?.netSpeedWidth ?? 86
+    implicitWidth: Config.options?.customWidgets?.netSpeedWidth ?? 86
     height: Math.max(26, Appearance.sizes.baseBarHeight - 6)
     implicitHeight: Math.max(26, Appearance.sizes.baseBarHeight - 6)
     clip: true

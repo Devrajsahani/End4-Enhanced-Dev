@@ -8,6 +8,20 @@ import os
 import signal
 import subprocess
 import re
+import json
+
+def load_slider_width():
+    path = os.path.expanduser("~/.config/illogical-impulse/config.json")
+    if os.path.isfile(path):
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+                return int(data.get("customWidgets", {}).get("slidersWidth", 360))
+        except Exception:
+            pass
+    return 360
+
+SLIDER_CARD_WIDTH = load_slider_width()
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -142,7 +156,7 @@ class SliderCard(Gtk.Box):
         self.mode = mode
         self.on_close_callback = on_close_callback
         self.get_style_context().add_class("slider-card")
-        self.set_size_request(340, -1)
+        self.set_size_request(SLIDER_CARD_WIDTH, -1)
 
         # Header: Icon (Left) & Numerical Value (Right)
         header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)

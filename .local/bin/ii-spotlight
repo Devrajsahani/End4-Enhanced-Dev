@@ -55,6 +55,21 @@ def load_matugen_colors():
             pass
     return defaults
 
+def load_widget_config():
+    path = os.path.expanduser("~/.config/illogical-impulse/config.json")
+    cfg = {"spotlightWidth": 720, "spotlightHeight": 560}
+    if os.path.isfile(path):
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+                cw = data.get("customWidgets", {})
+                cfg["spotlightWidth"] = int(cw.get("spotlightWidth", 720))
+                cfg["spotlightHeight"] = int(cw.get("spotlightHeight", 560))
+        except Exception:
+            pass
+    return cfg
+
+WIDGET_CONFIG = load_widget_config()
 COLORS = load_matugen_colors()
 
 def hex_to_rgba(hex_code, alpha):
@@ -231,7 +246,7 @@ class SpotlightLauncher(Gtk.Window):
         GLib.set_application_name("spotlight-launcher")
         super().__init__(type=Gtk.WindowType.TOPLEVEL)
         self.set_title("spotlight-launcher")
-        self.set_default_size(680, 560)
+        self.set_default_size(WIDGET_CONFIG["spotlightWidth"], WIDGET_CONFIG["spotlightHeight"])
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_decorated(False)
         self.set_skip_taskbar_hint(True)
@@ -301,8 +316,9 @@ class SpotlightLauncher(Gtk.Window):
         self.scrolled = Gtk.ScrolledWindow()
         self.scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.scrolled.set_propagate_natural_height(True)
-        self.scrolled.set_min_content_height(420)
-        self.scrolled.set_max_content_height(420)
+        scroll_h = max(260, WIDGET_CONFIG["spotlightHeight"] - 140)
+        self.scrolled.set_min_content_height(scroll_h)
+        self.scrolled.set_max_content_height(scroll_h)
 
         self.results_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.scrolled.add(self.results_box)

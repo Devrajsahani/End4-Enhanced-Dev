@@ -7,6 +7,134 @@ import qs.modules.common.widgets
 ContentPage {
     forceWidth: true
 
+
+    ContentSection {
+        icon: "developer_mode"
+        title: Translation.tr("Developer & Custom Widgets Sizing")
+
+        ContentSubsection {
+            title: Translation.tr("Spotlight App Launcher Dimensions")
+            tooltip: Translation.tr("Controls width and maximum height of the ALT + Space Spotlight launcher")
+
+            ConfigSpinBox {
+                text: Translation.tr("Spotlight Width (px)")
+                value: Config.options.customWidgets.spotlightWidth
+                from: 500
+                to: 1100
+                stepSize: 20
+                onValueChanged: {
+                    Config.options.customWidgets.spotlightWidth = value;
+                }
+            }
+
+            ConfigSpinBox {
+                text: Translation.tr("Spotlight Height (px)")
+                value: Config.options.customWidgets.spotlightHeight
+                from: 400
+                to: 900
+                stepSize: 20
+                onValueChanged: {
+                    Config.options.customWidgets.spotlightHeight = value;
+                }
+            }
+        }
+
+        ContentSubsection {
+            title: Translation.tr("Floating GUI Sliders Hub Dimensions")
+            tooltip: Translation.tr("Controls card width of the Super + Alt + G sliders hub")
+
+            ConfigSpinBox {
+                text: Translation.tr("Slider Card Width (px)")
+                value: Config.options.customWidgets.slidersWidth
+                from: 280
+                to: 550
+                stepSize: 10
+                onValueChanged: {
+                    Config.options.customWidgets.slidersWidth = value;
+                }
+            }
+        }
+
+        ContentSubsection {
+            title: Translation.tr("Developer Hub & Calendar Decks")
+            tooltip: Translation.tr("Controls popup dimensions for Developer Hub and Calendar Deck")
+
+            ConfigSpinBox {
+                text: Translation.tr("Developer Deck Width (px)")
+                value: Config.options.customWidgets.devDeckWidth
+                from: 400
+                to: 900
+                stepSize: 20
+                onValueChanged: {
+                    Config.options.customWidgets.devDeckWidth = value;
+                }
+            }
+
+            ConfigSpinBox {
+                text: Translation.tr("Developer Deck Height (px)")
+                value: Config.options.customWidgets.devDeckHeight
+                from: 380
+                to: 800
+                stepSize: 20
+                onValueChanged: {
+                    Config.options.customWidgets.devDeckHeight = value;
+                }
+            }
+
+            ConfigSpinBox {
+                text: Translation.tr("Right Sidebar Bottom Group Height (px)")
+                value: Config.options.customWidgets.bottomGroupHeight
+                from: 250
+                to: 650
+                stepSize: 10
+                onValueChanged: {
+                    Config.options.customWidgets.bottomGroupHeight = value;
+                }
+            }
+        }
+
+        ContentSubsection {
+            title: Translation.tr("Top Bar Speed Pill")
+            tooltip: Translation.tr("Controls the fixed width of the upload/download speed indicator pill")
+
+            ConfigSpinBox {
+                text: Translation.tr("Network Speed Pill Width (px)")
+                value: Config.options.customWidgets.netSpeedWidth
+                from: 50
+                to: 140
+                stepSize: 4
+                onValueChanged: {
+                    Config.options.customWidgets.netSpeedWidth = value;
+                }
+            }
+        }
+
+        ContentSubsection {
+            title: Translation.tr("Developer Accounts & Repository")
+            tooltip: Translation.tr("Configures usernames for live GitHub and LeetCode tracking")
+
+            MaterialTextArea {
+                Layout.fillWidth: true
+                placeholderText: Translation.tr("GitHub Username (e.g. Devrajsahani)")
+                text: Config.options.customWidgets.githubUsername
+                wrapMode: TextEdit.NoWrap
+                onTextChanged: {
+                    Config.options.customWidgets.githubUsername = text;
+                }
+            }
+
+            MaterialTextArea {
+                Layout.fillWidth: true
+                placeholderText: Translation.tr("LeetCode Username")
+                text: Config.options.customWidgets.leetcodeUsername
+                wrapMode: TextEdit.NoWrap
+                onTextChanged: {
+                    Config.options.customWidgets.leetcodeUsername = text;
+                }
+            }
+        }
+    }
+
     ContentSection {
         icon: "keyboard"
         title: Translation.tr("Cheat sheet")
