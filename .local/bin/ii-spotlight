@@ -1,0 +1,800 @@
+#!/usr/bin/env python3
+# -----------------------------------------------------------------------------
+# II-SPOTLIGHT: Modern Spotlight Application & Settings Launcher
+# Features: Acrylic glassmorphism, Matugen dynamic theming, category sections,
+#           interactive filter chips, desktop search, settings hub & math eval.
+# -----------------------------------------------------------------------------
+import os
+import sys
+import json
+import math
+import subprocess
+import signal
+
+# Process toggle check
+PID_FILE = "/tmp/ii-spotlight.pid"
+if os.path.isfile(PID_FILE):
+    try:
+        with open(PID_FILE, "r") as f:
+            old_pid = int(f.read().strip())
+        os.kill(old_pid, signal.SIGTERM)
+        os.remove(PID_FILE)
+        sys.exit(0)
+    except Exception:
+        pass
+
+with open(PID_FILE, "w") as f:
+    f.write(str(os.getpid()))
+
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk, Gdk, GLib, Gio, Pango, GdkPixbuf
+
+# Load Matugen colors with graceful defaults
+def load_matugen_colors():
+    defaults = {
+        "surface": "#1c110c",
+        "on_surface": "#fce7ec",
+        "on_surface_variant": "#dfc0b4",
+        "primary": "#f2a8c5",
+        "on_primary": "#2b111a",
+        "primary_container": "#3e2029",
+        "on_primary_container": "#ffd8e2",
+        "outline": "#a78b80"
+    }
+    path = os.path.expanduser("~/.local/state/quickshell/user/generated/colors.json")
+    if os.path.isfile(path):
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+                for k in defaults:
+                    if k in data:
+                        defaults[k] = data[k]
+        except Exception:
+            pass
+    return defaults
+
+COLORS = load_matugen_colors()
+
+def hex_to_rgba(hex_code, alpha):
+    h = hex_code.lstrip('#')
+    if len(h) == 6:
+        r, g, b = tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+        return f"rgba({r}, {g}, {b}, {alpha})"
+    return f"rgba(28, 17, 22, {alpha})"
+
+CARD_BG = hex_to_rgba(COLORS["surface"], 0.88)
+SEARCH_BG = hex_to_rgba(COLORS["surface"], 0.70)
+BORDER_COLOR = hex_to_rgba(COLORS["primary"], 0.30)
+ACCENT = COLORS["primary"]
+TEXT_PRIMARY = COLORS["on_surface"]
+TEXT_SECONDARY = hex_to_rgba(COLORS["on_surface"], 0.60)
+SELECTED_BG = hex_to_rgba(COLORS["primary_container"], 0.80)
+SELECTED_BORDER = hex_to_rgba(COLORS["primary"], 0.50)
+
+CSS_STYLES = f"""
+* {{
+    font-family: 'Google Sans Flex', 'Inter', 'Noto Sans', sans-serif;
+}}
+
+window.spotlight-window {{
+    background: transparent;
+}}
+
+#spotlight-card {{
+    background-color: {CARD_BG};
+    border: 1.5px solid {BORDER_COLOR};
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+    padding: 18px 20px 14px 20px;
+}}
+
+#search-bar-box {{
+    background-color: {SEARCH_BG};
+    border: 1.5px solid {ACCENT};
+    border-radius: 16px;
+    padding: 6px 14px;
+    margin-bottom: 12px;
+}}
+
+#search-icon {{
+    color: {ACCENT};
+    font-size: 17px;
+    margin-right: 10px;
+}}
+
+#search-entry {{
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: {TEXT_PRIMARY};
+    font-size: 15px;
+    font-weight: 500;
+}}
+
+#clear-btn {{
+    background: transparent;
+    border: none;
+    color: {TEXT_SECONDARY};
+    font-size: 14px;
+    border-radius: 10px;
+    padding: 2px 6px;
+}}
+
+#clear-btn:hover {{
+    color: {TEXT_PRIMARY};
+    background-color: rgba(255, 255, 255, 0.10);
+}}
+
+.section-header {{
+    padding: 8px 6px 4px 6px;
+}}
+
+.section-label {{
+    color: {TEXT_PRIMARY};
+    font-size: 12px;
+    font-weight: 700;
+}}
+
+.section-count {{
+    color: {TEXT_SECONDARY};
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 6px;
+}}
+
+.section-view-icons {{
+    color: {TEXT_SECONDARY};
+    font-size: 12px;
+}}
+
+.result-row {{
+    background-color: transparent;
+    border: 1.5px solid transparent;
+    border-radius: 14px;
+    padding: 8px 12px;
+    margin-bottom: 3px;
+    transition: all 120ms ease;
+}}
+
+.result-row:hover {{
+    background-color: rgba(255, 255, 255, 0.05);
+}}
+
+.result-row.selected {{
+    background-color: {SELECTED_BG};
+    border-color: {SELECTED_BORDER};
+}}
+
+.result-title {{
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 600;
+}}
+
+.result-desc {{
+    color: {TEXT_SECONDARY};
+    font-size: 11px;
+    margin-top: 2px;
+}}
+
+.result-badge {{
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9px;
+    padding: 3px 10px;
+    color: {TEXT_PRIMARY};
+    font-size: 10.5px;
+    font-weight: 600;
+}}
+
+#footer-box {{
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 10px;
+    margin-top: 8px;
+}}
+
+.filter-chip {{
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 4px 12px;
+    color: {TEXT_SECONDARY};
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 4px;
+}}
+
+.filter-chip:hover {{
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}}
+
+.filter-chip.active {{
+    background-color: {ACCENT};
+    color: {COLORS["on_primary"]};
+    font-weight: 700;
+}}
+
+.nav-hint {{
+    color: {TEXT_SECONDARY};
+    font-size: 10.5px;
+    font-weight: 500;
+    margin-left: 10px;
+}}
+"""
+
+class SpotlightLauncher(Gtk.Window):
+    def __init__(self):
+        GLib.set_prgname("spotlight-launcher")
+        GLib.set_application_name("spotlight-launcher")
+        super().__init__(type=Gtk.WindowType.TOPLEVEL)
+        self.set_title("spotlight-launcher")
+        self.set_default_size(680, 560)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.set_decorated(False)
+        self.set_skip_taskbar_hint(True)
+        self.set_skip_pager_hint(True)
+        self.set_keep_above(True)
+
+        # Transparency support
+        screen = self.get_screen()
+        visual = screen.get_rgba_visual()
+        if visual and screen.is_composited():
+            self.set_visual(visual)
+        self.set_app_paintable(True)
+
+        self.active_category = "all"  # "all", "apps", "files", "plugins"
+        self.selected_index = 0
+        self.filtered_items = []
+        self.rendered_widgets = []
+
+        # Load Applications & Settings
+        self.apps = self.load_applications()
+        self.settings = self.load_settings()
+        self.recent_files = self.load_recent_files()
+
+        self.setup_ui()
+        self.setup_css()
+
+        # Connect event handlers
+        self.connect("key-press-event", self.on_key_press)
+        self.connect("focus-out-event", self.on_focus_out)
+        self.connect("destroy", self.on_destroy)
+
+        initial_q = sys.argv[1] if len(sys.argv) > 1 else ""
+        if initial_q:
+            self.entry.set_text(initial_q)
+            self.entry.set_position(-1)
+        self.update_search(initial_q)
+
+    def setup_ui(self):
+        root_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        root_box.set_name("spotlight-card")
+        self.add(root_box)
+
+        # 1. Search Bar Pill
+        search_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        search_box.set_name("search-bar-box")
+        search_box.set_valign(Gtk.Align.CENTER)
+
+        search_icon = Gtk.Label(label="🔍")
+        search_icon.set_name("search-icon")
+        search_box.pack_start(search_icon, False, False, 0)
+
+        self.entry = Gtk.Entry()
+        self.entry.set_name("search-entry")
+        self.entry.set_placeholder_text("Search apps, settings, files, math, web...")
+        self.entry.connect("changed", self.on_search_changed)
+        search_box.pack_start(self.entry, True, True, 0)
+
+        self.clear_btn = Gtk.Button(label="✕")
+        self.clear_btn.set_name("clear-btn")
+        self.clear_btn.connect("clicked", lambda b: self.entry.set_text(""))
+        self.clear_btn.set_visible(False)
+        search_box.pack_start(self.clear_btn, False, False, 0)
+
+        root_box.pack_start(search_box, False, False, 0)
+
+        # 2. Results Container (Scrollable)
+        self.scrolled = Gtk.ScrolledWindow()
+        self.scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scrolled.set_propagate_natural_height(True)
+        self.scrolled.set_min_content_height(420)
+        self.scrolled.set_max_content_height(420)
+
+        self.results_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.scrolled.add(self.results_box)
+        root_box.pack_start(self.scrolled, True, True, 0)
+
+        # 3. Bottom Filter Chips & Hints Footer
+        footer_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        footer_box.set_name("footer-box")
+
+        self.chips = {}
+        chip_defs = [
+            ("all", "🔍 All"),
+            ("apps", "󰀻 Apps"),
+            ("files", "📁 Files"),
+            ("plugins", "⚙ Plugins")
+        ]
+
+        for cat_id, label in chip_defs:
+            btn = Gtk.Button(label=label)
+            btn.get_style_context().add_class("filter-chip")
+            if cat_id == self.active_category:
+                btn.get_style_context().add_class("active")
+            btn.connect("clicked", lambda b, c=cat_id: self.set_category(c))
+            footer_box.pack_start(btn, False, False, 0)
+            self.chips[cat_id] = btn
+
+        # Right-side navigation hints
+        hints_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hints_box.set_halign(Gtk.Align.END)
+        hints = ["↑↓ nav", "↵ open", "Tab filter", "Esc close"]
+        for h in hints:
+            lbl = Gtk.Label(label=h)
+            lbl.get_style_context().add_class("nav-hint")
+            hints_box.pack_start(lbl, False, False, 0)
+
+        footer_box.pack_end(hints_box, False, False, 0)
+        root_box.pack_start(footer_box, False, False, 0)
+
+    def setup_css(self):
+        provider = Gtk.CssProvider()
+        provider.load_from_data(CSS_STYLES.encode('utf-8'))
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+    def set_category(self, cat_id):
+        self.active_category = cat_id
+        for cid, btn in self.chips.items():
+            ctx = btn.get_style_context()
+            if cid == cat_id:
+                ctx.add_class("active")
+            else:
+                ctx.remove_class("active")
+        self.update_search(self.entry.get_text())
+
+    def load_applications(self):
+        apps = []
+        seen = set()
+        for app in Gio.AppInfo.get_all():
+            if not app.should_show():
+                continue
+            name = app.get_display_name() or ""
+            desc = app.get_description() or ""
+            exec_cmd = app.get_executable() or ""
+            key = (name.lower(), exec_cmd)
+            if key in seen:
+                continue
+            seen.add(key)
+
+            icon = app.get_icon()
+            apps.append({
+                "type": "app",
+                "title": name,
+                "desc": desc if desc else exec_cmd,
+                "badge": "App",
+                "icon": icon,
+                "action": lambda a=app: a.launch()
+            })
+        apps.sort(key=lambda x: x["title"].lower())
+        return apps
+
+    def load_settings(self):
+        home = os.path.expanduser("~")
+        return [
+            {
+                "type": "setting",
+                "title": "Display Profiles",
+                "desc": "Switch between Laptop Only, Extend Displays, and External Monitor",
+                "badge": "Display",
+                "icon_name": "video-display",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-display"])
+            },
+            {
+                "type": "setting",
+                "title": "Floating GUI Sliders Hub",
+                "desc": "Translucent Volume, Brightness, and Night Light interactive cards",
+                "badge": "Media",
+                "icon_name": "audio-speakers",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-slider", "all"])
+            },
+            {
+                "type": "setting",
+                "title": "Volume Slider Card",
+                "desc": "Single floating volume card with real-time level feedback",
+                "badge": "Media",
+                "icon_name": "audio-volume-high",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-slider", "volume"])
+            },
+            {
+                "type": "setting",
+                "title": "Night Light Temperature Slider",
+                "desc": "Hyprsunset blue light filter warmth slider card",
+                "badge": "Display",
+                "icon_name": "weather-clear-night",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-slider", "nightlight"])
+            },
+            {
+                "type": "setting",
+                "title": "Audio & Microphone Switcher",
+                "desc": "Select audio output sinks (Speakers/HDMI) and microphones",
+                "badge": "Audio",
+                "icon_name": "audio-card",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-audio"])
+            },
+            {
+                "type": "setting",
+                "title": "Top Bar Layout Styles",
+                "desc": "Switch between 5 top bar styles (Center Clock, Packed, Line)",
+                "badge": "Shell",
+                "icon_name": "view-grid",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-bar-layout"])
+            },
+            {
+                "type": "setting",
+                "title": "Wallpaper Selector",
+                "desc": "Choose desktop wallpapers from current theme pack",
+                "badge": "Theme",
+                "icon_name": "preferences-desktop-wallpaper",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-theme", "wallpaper"])
+            },
+            {
+                "type": "setting",
+                "title": "Theme Pack Switcher",
+                "desc": "Select Material 3 dynamic color theme packs",
+                "badge": "Theme",
+                "icon_name": "preferences-desktop-theme",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-theme", "theme"])
+            },
+            {
+                "type": "setting",
+                "title": "Animation Profiles",
+                "desc": "Switch Hyprland animation curves (Fast, Smooth, Snappy)",
+                "badge": "Hyprland",
+                "icon_name": "preferences-system-windows",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-anim"])
+            },
+            {
+                "type": "setting",
+                "title": "Quick Controls & Productivity Hub",
+                "desc": "Comprehensive quick settings center & device tools",
+                "badge": "System",
+                "icon_name": "preferences-system",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-control"])
+            },
+            {
+                "type": "setting",
+                "title": "Hyprland Keybindings Cheatsheet",
+                "desc": "Browse and execute all configured keyboard shortcuts",
+                "badge": "Help",
+                "icon_name": "input-keyboard",
+                "action": lambda: subprocess.Popen([f"{home}/.local/bin/ii-keybinds"])
+            },
+            {
+                "type": "setting",
+                "title": "System Process Monitor (Btop)",
+                "desc": "Interactive task manager & CPU/RAM performance monitor",
+                "badge": "System",
+                "icon_name": "utilities-system-monitor",
+                "action": lambda: subprocess.Popen(["kitty", "-e", "btop"])
+            },
+            {
+                "type": "setting",
+                "title": "Network Connections",
+                "desc": "Configure Wi-Fi networks, wired Ethernet, and VPN profiles",
+                "badge": "Network",
+                "icon_name": "network-wireless",
+                "action": lambda: subprocess.Popen(["nm-connection-editor"])
+            },
+            {
+                "type": "setting",
+                "title": "Audio Mixer (Pavucontrol)",
+                "desc": "PipeWire / PulseAudio per-application audio stream mixer",
+                "badge": "Audio",
+                "icon_name": "multimedia-volume-control",
+                "action": lambda: subprocess.Popen(["pavucontrol"])
+            }
+        ]
+
+    def load_recent_files(self):
+        rm = Gtk.RecentManager.get_default()
+        items = []
+        for item in rm.get_items():
+            if not item.exists():
+                continue
+            uri = item.get_uri()
+            if not uri.startswith("file://"):
+                continue
+            path = uri[7:]
+            filename = os.path.basename(path)
+            items.append({
+                "type": "file",
+                "title": filename,
+                "desc": path,
+                "badge": "File",
+                "icon_name": "text-x-generic",
+                "action": lambda p=path: subprocess.Popen(["xdg-open", p])
+            })
+        return items
+
+    def on_search_changed(self, entry):
+        text = entry.get_text()
+        self.clear_btn.set_visible(len(text) > 0)
+        self.update_search(text)
+
+    def update_search(self, query):
+        q = query.strip().lower()
+        self.filtered_items = []
+
+        # 1. Math / Calculator check
+        math_res = None
+        if q and (q.startswith("=") or any(op in q for op in ["+", "-", "*", "/", "^"])):
+            expr = q.lstrip("=").strip()
+            try:
+                allowed_names = {"math": math, "sqrt": math.sqrt, "sin": math.sin, "cos": math.cos, "pi": math.pi}
+                val = eval(expr, {"__builtins__": {}}, allowed_names)
+                math_res = {
+                    "type": "plugin",
+                    "title": f"= {val}",
+                    "desc": f"Calculation: {expr} (Press Enter to copy)",
+                    "badge": "Calculator",
+                    "icon_name": "accessories-calculator",
+                    "action": lambda v=str(val): subprocess.Popen(["wl-copy", v])
+                }
+            except Exception:
+                pass
+
+        # 2. Filter Apps
+        matched_apps = []
+        if self.active_category in ["all", "apps"]:
+            for a in self.apps:
+                if not q or q in a["title"].lower() or q in a["desc"].lower():
+                    matched_apps.append(a)
+
+        # 3. Filter Settings
+        matched_settings = []
+        if self.active_category in ["all", "plugins"]:
+            for s in self.settings:
+                if not q or q in s["title"].lower() or q in s["desc"].lower():
+                    matched_settings.append(s)
+
+        # 4. Filter Files
+        matched_files = []
+        if self.active_category in ["all", "files"]:
+            for f in self.recent_files:
+                if not q or q in f["title"].lower() or q in f["desc"].lower():
+                    matched_files.append(f)
+
+        # 5. Web Search fallback
+        web_item = None
+        if q and not q.startswith("="):
+            web_item = {
+                "type": "plugin",
+                "title": f"Search Google for \"{query.strip()}\"",
+                "desc": "Open query in default web browser",
+                "badge": "Web Search",
+                "icon_name": "web-browser",
+                "action": lambda qu=query.strip(): subprocess.Popen(["xdg-open", f"https://www.google.com/search?q={qu}"])
+            }
+
+        # Structure sections
+        sections = []
+        if math_res:
+            sections.append(("Calculator", [math_res]))
+
+        if matched_apps:
+            sections.append(("Applications", matched_apps[:6]))
+
+        if matched_settings:
+            sections.append(("Settings", matched_settings[:6]))
+
+        if matched_files:
+            sections.append(("Files", matched_files[:5]))
+
+        if web_item:
+            sections.append(("Web Search", [web_item]))
+
+        self.render_sections(sections)
+
+    def render_sections(self, sections):
+        # Clear previous widgets
+        for child in self.results_box.get_children():
+            self.results_box.remove(child)
+
+        self.filtered_items = []
+        self.rendered_widgets = []
+        item_counter = 0
+
+        for section_title, items in sections:
+            # Section Header
+            hdr = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+            hdr.get_style_context().add_class("section-header")
+
+            lbl_title = Gtk.Label(label=f"::: {section_title}" if section_title == "Applications" else f"⚙ {section_title}")
+            lbl_title.get_style_context().add_class("section-label")
+            hdr.pack_start(lbl_title, False, False, 0)
+
+            lbl_count = Gtk.Label(label=str(len(items)))
+            lbl_count.get_style_context().add_class("section-count")
+            hdr.pack_start(lbl_count, False, False, 0)
+
+            # View controls icons (matching reference image)
+            view_icons = Gtk.Label(label="▤  ☷  ▦  ⌃")
+            view_icons.get_style_context().add_class("section-view-icons")
+            view_icons.set_halign(Gtk.Align.END)
+            hdr.pack_end(view_icons, False, False, 0)
+
+            self.results_box.pack_start(hdr, False, False, 0)
+
+            # Section items
+            for item in items:
+                row = self.create_result_row(item, item_counter)
+                self.results_box.pack_start(row, False, False, 0)
+                self.filtered_items.append(item)
+                self.rendered_widgets.append(row)
+                item_counter += 1
+
+        self.results_box.show_all()
+
+        # Clamp and highlight selected index
+        if self.filtered_items:
+            self.selected_index = max(0, min(self.selected_index, len(self.filtered_items) - 1))
+            self.highlight_selected()
+        else:
+            self.selected_index = 0
+
+    def create_result_row(self, item, index):
+        event_box = Gtk.EventBox()
+        event_box.set_visible_window(False)
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        row.get_style_context().add_class("result-row")
+
+        # Icon
+        icon_img = Gtk.Image()
+        if "icon" in item and item["icon"]:
+            icon_img.set_from_gicon(item["icon"], Gtk.IconSize.LARGE_TOOLBAR)
+        elif "icon_name" in item and item["icon_name"]:
+            icon_img.set_from_icon_name(item["icon_name"], Gtk.IconSize.LARGE_TOOLBAR)
+        else:
+            icon_img.set_from_icon_name("application-x-executable", Gtk.IconSize.LARGE_TOOLBAR)
+        icon_img.set_pixel_size(24)
+        row.pack_start(icon_img, False, False, 0)
+
+        # Title and Description
+        text_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        title_lbl = Gtk.Label(label=item["title"])
+        title_lbl.set_halign(Gtk.Align.START)
+        title_lbl.set_ellipsize(Pango.EllipsizeMode.END)
+        title_lbl.get_style_context().add_class("result-title")
+        text_box.pack_start(title_lbl, False, False, 0)
+
+        desc_lbl = Gtk.Label(label=item.get("desc", ""))
+        desc_lbl.set_halign(Gtk.Align.START)
+        desc_lbl.set_ellipsize(Pango.EllipsizeMode.END)
+        desc_lbl.get_style_context().add_class("result-desc")
+        text_box.pack_start(desc_lbl, False, False, 0)
+
+        row.pack_start(text_box, True, True, 0)
+
+        # Right-side badge chip
+        if "badge" in item and item["badge"]:
+            badge_lbl = Gtk.Label(label=item["badge"])
+            badge_lbl.get_style_context().add_class("result-badge")
+            badge_lbl.set_valign(Gtk.Align.CENTER)
+            row.pack_end(badge_lbl, False, False, 0)
+
+        event_box.add(row)
+        event_box.connect("button-press-event", lambda w, e, idx=index: self.on_item_clicked(idx))
+        event_box.row_box = row
+        return event_box
+
+    def highlight_selected(self):
+        for idx, eb in enumerate(self.rendered_widgets):
+            ctx = eb.row_box.get_style_context()
+            if idx == self.selected_index:
+                ctx.add_class("selected")
+                # Scroll into view
+                adj = self.scrolled.get_vadjustment()
+                alloc = eb.get_allocation()
+                if alloc.y < adj.get_value():
+                    adj.set_value(alloc.y)
+                elif alloc.y + alloc.height > adj.get_value() + adj.get_page_size():
+                    adj.set_value(alloc.y + alloc.height - adj.get_page_size())
+            else:
+                ctx.remove_class("selected")
+
+    def on_item_clicked(self, index):
+        self.selected_index = index
+        self.highlight_selected()
+        self.activate_selected()
+
+    def activate_selected(self):
+        if 0 <= self.selected_index < len(self.filtered_items):
+            item = self.filtered_items[self.selected_index]
+            self.close_launcher()
+            if "action" in item and callable(item["action"]):
+                try:
+                    item["action"]()
+                except Exception as e:
+                    print(f"Error launching item: {e}", file=sys.stderr)
+
+    def on_key_press(self, widget, event):
+        keyval = event.keyval
+
+        if keyval == Gdk.KEY_Escape:
+            self.close_launcher()
+            return True
+
+        elif keyval in [Gdk.KEY_Down, Gdk.KEY_Tab] and (event.state & Gdk.ModifierType.CONTROL_MASK):
+            # Cycle filter categories with Ctrl+Tab or Ctrl+Down
+            cats = ["all", "apps", "files", "plugins"]
+            cur_idx = cats.index(self.active_category)
+            next_cat = cats[(cur_idx + 1) % len(cats)]
+            self.set_category(next_cat)
+            return True
+
+        elif keyval == Gdk.KEY_Down:
+            if self.filtered_items:
+                self.selected_index = (self.selected_index + 1) % len(self.filtered_items)
+                self.highlight_selected()
+            return True
+
+        elif keyval == Gdk.KEY_Up:
+            if self.filtered_items:
+                self.selected_index = (self.selected_index - 1 + len(self.filtered_items)) % len(self.filtered_items)
+                self.highlight_selected()
+            return True
+
+        elif keyval == Gdk.KEY_Return or keyval == Gdk.KEY_KP_Enter:
+            self.activate_selected()
+            return True
+
+        elif keyval == Gdk.KEY_Tab:
+            # Tab cycles chips
+            cats = ["all", "apps", "files", "plugins"]
+            cur_idx = cats.index(self.active_category)
+            next_cat = cats[(cur_idx + 1) % len(cats)]
+            self.set_category(next_cat)
+            return True
+
+        return False
+
+    def on_focus_out(self, widget, event):
+        self.close_launcher()
+        return False
+
+    def close_launcher(self):
+        self.destroy()
+
+    def on_destroy(self, widget):
+        if os.path.isfile(PID_FILE):
+            try:
+                os.remove(PID_FILE)
+            except Exception:
+                pass
+        Gtk.main_quit()
+
+def main():
+    # Disarm quickshell release trigger so super/alt space never clashes with quickshell
+    try:
+        subprocess.run(["qs", "-c", "ii", "ipc", "call", "search", "toggleReleaseInterrupt"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(["qs", "-c", "ii", "ipc", "call", "search", "close"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+    app = SpotlightLauncher()
+    app.show_all()
+    Gtk.main()
+
+if __name__ == "__main__":
+    main()

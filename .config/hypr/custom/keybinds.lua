@@ -1,4 +1,7 @@
 -- User custom keybindings for Hyprland & QuickShell Rice
+-- Spotlight Launcher (ALT + Space)
+hl.bind("ALT + Space", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-spotlight"), {description = "App: Spotlight Launcher"})
+
 -- Config editing & Display profiles
 hl.bind("CTRL+SUPER+ALT+Slash", hl.dsp.exec_cmd("xdg-open ~/.config/hypr/custom/keybinds.lua"), {description = "System: Edit user keybinds"})
 hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-display"), {description = "Display: Choose monitor profile"})
