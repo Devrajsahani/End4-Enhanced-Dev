@@ -80,7 +80,7 @@
       "workspaceZoom": 1.03
     },
     "thumbnailPath": "",
-    "wallpaperPath": "/home/dev/Pictures/Wallpapers/ThemePacks/Cars-Racing/wp12663323-f1-laptop-wallpapers.jpg",
+    "wallpaperPath": "/home/dev/Pictures/Wallpapers/ThemePacks/Everforest-Dark/03-fog-valley.jpg",
     "widgets": {
       "clock": {
         "cookie": {
@@ -123,25 +123,25 @@
         "y": 56.70703125
       },
       "github": {
-        "enable": true,
+        "enable": false,
         "placementStrategy": "free",
         "scale": 1,
-        "x": 1416.21484375,
-        "y": 883.23046875
+        "x": 1445.95703125,
+        "y": 898.84765625
       },
       "leetcode": {
-        "enable": true,
+        "enable": false,
         "placementStrategy": "free",
         "scale": 1,
-        "x": 48,
-        "y": 500
+        "x": 1496.20703125,
+        "y": 663.8203125
       },
       "screenTime": {
         "enable": true,
         "placementStrategy": "free",
         "scale": 1,
-        "x": 1480,
-        "y": 420
+        "x": 13.9296875,
+        "y": 765.86328125
       },
       "weather": {
         "enable": false,

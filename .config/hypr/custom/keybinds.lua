@@ -13,6 +13,8 @@ hl.bind("SUPER + ALT + W", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-theme wallpap
 hl.bind("SUPER + ALT + T", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-theme theme"), {description = "Appearance: Choose theme pack"})
 
 -- Productivity & System Switchers
+hl.bind("SUPER + H", hl.dsp.exec_cmd(HOME .. "/.local/bin/hyprwhspr record toggle"), {description = "Dictation: Toggle speech-to-text (Win+H)"})
+hl.bind("SUPER + ALT + D", hl.dsp.exec_cmd(HOME .. "/.local/bin/hyprwhspr record toggle"), {description = "Dictation: Toggle speech-to-text"})
 hl.bind("SUPER + F1", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-keybinds"), {description = "Help: Search keybindings & cheatsheet"})
 hl.bind("SUPER + ALT + K", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-keybinds"), {description = "Help: Search keybindings & cheatsheet"})
 hl.bind("SUPER + ALT + A", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-anim"), {description = "Appearance: Switch animation profile"})
