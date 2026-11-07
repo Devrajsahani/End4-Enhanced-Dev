@@ -146,6 +146,27 @@ set_wallpaper_path() {
     if [ -f "$SHELL_CONFIG_FILE" ]; then
         jq --arg path "$path" '.background.wallpaperPath = $path' "$SHELL_CONFIG_FILE" > "$SHELL_CONFIG_FILE.tmp" && mv "$SHELL_CONFIG_FILE.tmp" "$SHELL_CONFIG_FILE"
     fi
+    local hp_conf="$XDG_CONFIG_HOME/hypr/hyprpaper.conf"
+    if [ -f "$hp_conf" ] && [ -n "$path" ]; then
+        cat > "$hp_conf" << EOF
+wallpaper {
+     monitor = eDP-1
+     path = $path
+     fit_mode = cover
+}
+wallpaper {
+     monitor = HDMI-A-1
+     path = $path
+     fit_mode = cover
+}
+splash = false
+ipc = on
+EOF
+        if command -v hyprctl &>/dev/null; then
+            hyprctl hyprpaper preload "$path" >/dev/null 2>&1 || true
+            hyprctl hyprpaper wallpaper ",$path" >/dev/null 2>&1 || true
+        fi
+    fi
 }
 
 set_thumbnail_path() {

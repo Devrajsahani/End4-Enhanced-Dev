@@ -646,9 +646,123 @@ ContentPage {
             }
         }
 
+        ConfigSlider {
+            text: Translation.tr("Size / Scale")
+            buttonIcon: "photo_size_select_small"
+            usePercentTooltip: true
+            from: 60
+            to: 160
+            value: Math.round((Config.options.background.widgets.screenTime.scale ?? 1.0) * 100)
+            onValueChanged: {
+                Config.options.background.widgets.screenTime.scale = value / 100;
+            }
+        }
+
         StyledText {
             Layout.fillWidth: true
             text: Translation.tr("When Draggable is selected, grab the card on the desktop and move it. Its position is saved automatically.")
+            color: Appearance.colors.colSubtext
+            wrapMode: Text.WordWrap
+        }
+    }
+
+    ContentSection {
+        icon: "commit"
+        title: Translation.tr("Widget: GitHub Heatmap")
+
+        ConfigRow {
+            Layout.fillWidth: true
+
+            ConfigSwitch {
+                Layout.fillWidth: false
+                buttonIcon: "check"
+                text: Translation.tr("Enable")
+                checked: Config.options.background.widgets.github.enable
+                onCheckedChanged: {
+                    Config.options.background.widgets.github.enable = checked;
+                }
+            }
+            Item { Layout.fillWidth: true }
+            ConfigSelectionArray {
+                Layout.fillWidth: false
+                currentValue: Config.options.background.widgets.github.placementStrategy
+                onSelected: newValue => {
+                    Config.options.background.widgets.github.placementStrategy = newValue;
+                }
+                options: [
+                    { displayName: Translation.tr("Draggable"), icon: "drag_pan", value: "free" },
+                    { displayName: Translation.tr("Least busy"), icon: "category", value: "leastBusy" },
+                    { displayName: Translation.tr("Most busy"), icon: "shapes", value: "mostBusy" },
+                ]
+            }
+        }
+
+        ConfigSlider {
+            text: Translation.tr("Size / Scale")
+            buttonIcon: "photo_size_select_small"
+            usePercentTooltip: true
+            from: 60
+            to: 160
+            value: Math.round((Config.options.background.widgets.github.scale ?? 1.0) * 100)
+            onValueChanged: {
+                Config.options.background.widgets.github.scale = value / 100;
+            }
+        }
+
+        StyledText {
+            Layout.fillWidth: true
+            text: Translation.tr("Displays 52-week activity heatmap, username, and yearly commits. Grab and drag to position.")
+            color: Appearance.colors.colSubtext
+            wrapMode: Text.WordWrap
+        }
+    }
+
+    ContentSection {
+        icon: "code"
+        title: Translation.tr("Widget: LeetCode Daily Challenge")
+
+        ConfigRow {
+            Layout.fillWidth: true
+
+            ConfigSwitch {
+                Layout.fillWidth: false
+                buttonIcon: "check"
+                text: Translation.tr("Enable")
+                checked: Config.options.background.widgets.leetcode.enable
+                onCheckedChanged: {
+                    Config.options.background.widgets.leetcode.enable = checked;
+                }
+            }
+            Item { Layout.fillWidth: true }
+            ConfigSelectionArray {
+                Layout.fillWidth: false
+                currentValue: Config.options.background.widgets.leetcode.placementStrategy
+                onSelected: newValue => {
+                    Config.options.background.widgets.leetcode.placementStrategy = newValue;
+                }
+                options: [
+                    { displayName: Translation.tr("Draggable"), icon: "drag_pan", value: "free" },
+                    { displayName: Translation.tr("Least busy"), icon: "category", value: "leastBusy" },
+                    { displayName: Translation.tr("Most busy"), icon: "shapes", value: "mostBusy" },
+                ]
+            }
+        }
+
+        ConfigSlider {
+            text: Translation.tr("Size / Scale")
+            buttonIcon: "photo_size_select_small"
+            usePercentTooltip: true
+            from: 60
+            to: 160
+            value: Math.round((Config.options.background.widgets.leetcode.scale ?? 1.0) * 100)
+            onValueChanged: {
+                Config.options.background.widgets.leetcode.scale = value / 100;
+            }
+        }
+
+        StyledText {
+            Layout.fillWidth: true
+            text: Translation.tr("Displays daily coding problem, tags, difficulty badge, acceptance rate, and solve button.")
             color: Appearance.colors.colSubtext
             wrapMode: Text.WordWrap
         }

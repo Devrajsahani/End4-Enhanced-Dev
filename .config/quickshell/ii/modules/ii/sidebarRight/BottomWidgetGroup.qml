@@ -31,18 +31,6 @@ Rectangle {
             "widget": "todo/TodoWidget.qml"
         },
         {
-            "type": "github",
-            "name": Translation.tr("GitHub"),
-            "icon": "commit",
-            "widget": "../devDeck/GithubWidget.qml"
-        },
-        {
-            "type": "leetcode",
-            "name": Translation.tr("LeetCode"),
-            "icon": "code",
-            "widget": "../devDeck/LeetcodeWidget.qml"
-        },
-        {
             "type": "timer",
             "name": Translation.tr("Timer"),
             "icon": "schedule",

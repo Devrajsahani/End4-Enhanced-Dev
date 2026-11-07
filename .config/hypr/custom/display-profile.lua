@@ -2,7 +2,8 @@
 local INTERNAL = "eDP-1"
 local EXTERNAL = "HDMI-A-1"
 local PROFILE_FILE = (os.getenv("HOME") or "") .. "/.config/hypr/display-profile"
-local LAPTOP_MODE = "1920x1080@60"
+local PREFERRED_FILE = (os.getenv("HOME") or "") .. "/.config/hypr/preferred-external-profile"
+local LAPTOP_MODE = "1920x1080@144.0"
 local EXTERNAL_MODE = "1920x1080@119.88"
 
 local function readProfile()
@@ -10,10 +11,39 @@ local function readProfile()
     if not file then return "laptop-only" end
     local profile = file:read("*l") or "laptop-only"
     file:close()
+    profile = profile:gsub("%s+", "")
     if profile == "external-only" or profile == "extend" or profile == "laptop-only" then
         return profile
     end
     return "laptop-only"
+end
+
+local function writeProfile(profile)
+    local file = io.open(PROFILE_FILE, "w")
+    if file then
+        file:write(profile .. "\n")
+        file:close()
+    end
+end
+
+local function readPreferredProfile()
+    local file = io.open(PREFERRED_FILE, "r")
+    if not file then return "extend" end
+    local profile = file:read("*l") or "extend"
+    file:close()
+    profile = profile:gsub("%s+", "")
+    if profile == "external-only" or profile == "extend" or profile == "laptop-only" then
+        return profile
+    end
+    return "extend"
+end
+
+local function writePreferredProfile(profile)
+    local file = io.open(PREFERRED_FILE, "w")
+    if file then
+        file:write(profile .. "\n")
+        file:close()
+    end
 end
 
 local function isConnected(output)
@@ -21,31 +51,66 @@ local function isConnected(output)
     if not pipe then return false end
     local status = pipe:read("*a") or ""
     pipe:close()
-    return status:find("connected", 1, true) ~= nil
+    for line in status:gmatch("[^\r\n]+") do
+        local trimmed = line:gsub("^%s*(.-)%s*$", "%1")
+        if trimmed == "connected" then
+            return true
+        end
+    end
+    return false
 end
 
-function applyDisplayProfile()
-    local profile = readProfile()
+function applyDisplayProfile(targetProfile)
     local externalConnected = isConnected(EXTERNAL)
+    local profile = targetProfile or readProfile()
 
-    if profile == "external-only" and externalConnected then
-        hl.monitor({ output = INTERNAL, disabled = true })
-        hl.monitor({ output = EXTERNAL, disabled = false, mode = EXTERNAL_MODE, position = "0x0", scale = 1 })
-    elseif profile == "extend" and externalConnected then
-        hl.monitor({ output = INTERNAL, disabled = false, mode = LAPTOP_MODE, position = "0x0", scale = 1 })
-        hl.monitor({ output = EXTERNAL, disabled = false, mode = EXTERNAL_MODE, position = "1920x0", scale = 1 })
-    else
-        -- Keep a usable laptop display if the external monitor is unplugged.
+    if not externalConnected then
+        -- Default to laptop screen whenever HDMI cable is not connected
+        profile = "laptop-only"
+        writeProfile("laptop-only")
         hl.monitor({ output = EXTERNAL, disabled = true })
         hl.monitor({ output = INTERNAL, disabled = false, mode = LAPTOP_MODE, position = "0x0", scale = 1 })
+        hl.dispatch(hl.dsp.focus({ monitor = INTERNAL }))
+        return
+    end
+
+    -- HDMI is connected
+    if profile == "external-only" then
+        writePreferredProfile("external-only")
+        writeProfile("external-only")
+        hl.monitor({ output = INTERNAL, disabled = true })
+        hl.monitor({ output = EXTERNAL, disabled = false, mode = EXTERNAL_MODE, position = "0x0", scale = 1 })
+        hl.dispatch(hl.dsp.focus({ monitor = EXTERNAL }))
+    elseif profile == "extend" then
+        writePreferredProfile("extend")
+        writeProfile("extend")
+        hl.monitor({ output = INTERNAL, disabled = false, mode = LAPTOP_MODE, position = "0x0", scale = 1 })
+        hl.monitor({ output = EXTERNAL, disabled = false, mode = EXTERNAL_MODE, position = "1920x0", scale = 1 })
+        hl.dispatch(hl.dsp.focus({ monitor = INTERNAL }))
+    else -- "laptop-only"
+        writeProfile("laptop-only")
+        hl.monitor({ output = EXTERNAL, disabled = true })
+        hl.monitor({ output = INTERNAL, disabled = false, mode = LAPTOP_MODE, position = "0x0", scale = 1 })
+        hl.dispatch(hl.dsp.focus({ monitor = INTERNAL }))
     end
 end
 
--- Reapply after config reloads so the generated laptop-only rule cannot undo
--- an explicitly selected external-only or extended profile.
+-- Reapply on startup / config reload
 applyDisplayProfile()
 
--- If a monitor is plugged or unplugged, restore the saved profile. The
--- connection check falls back to the laptop panel if HDMI is unavailable.
-hl.on("monitor.added", function() applyDisplayProfile() end)
-hl.on("monitor.removed", function() applyDisplayProfile() end)
+-- Monitor hotplug handlers
+hl.on("monitor.added", function()
+    if isConnected(EXTERNAL) then
+        local pref = readPreferredProfile()
+        applyDisplayProfile(pref)
+        local desc = (pref == "external-only") and "External Monitor Only (Acer 120Hz)" or "Extended Dual Displays"
+        os.execute("notify-send -a 'Display Manager' -i 'video-display' 'HDMI Connected' 'Applied " .. desc .. ".' &")
+    end
+end)
+
+hl.on("monitor.removed", function()
+    if not isConnected(EXTERNAL) then
+        applyDisplayProfile("laptop-only")
+        os.execute("notify-send -a 'Display Manager' -i 'video-display' 'HDMI Disconnected' 'Defaulted to Laptop Screen (1080p@144Hz).' &")
+    end
+end)

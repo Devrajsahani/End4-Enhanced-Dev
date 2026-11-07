@@ -127,7 +127,7 @@ Variants {
             property: "wallpaperTransitionProgress"
             from: 0
             to: 1
-            duration: 850
+            duration: 750
             easing.type: Easing.OutCubic
             onFinished: bgRoot.previousWallpaperPath = ""
         }
@@ -164,10 +164,9 @@ Variants {
 
             Image {
                 id: previousWallpaper
-                visible: opacity > 0 && !!bgRoot.previousWallpaperPath && !blurLoader.active && !bgRoot.wallpaperSafetyTriggered && !bgRoot.wallpaperIsVideo
+                visible: !!bgRoot.previousWallpaperPath && (bgRoot.wallpaperTransitionProgress < 1) && !blurLoader.active && !bgRoot.wallpaperSafetyTriggered && !bgRoot.wallpaperIsVideo
                 source: bgRoot.previousWallpaperPath
-                opacity: 1 - bgRoot.wallpaperTransitionProgress
-                scale: 1.0 + (bgRoot.wallpaperTransitionProgress * 0.02)
+                opacity: 1.0
                 transformOrigin: Item.Center
                 x: wallpaper.x
                 y: wallpaper.y
@@ -179,93 +178,117 @@ Variants {
                 smooth: true
             }
 
-            // Wallpaper
-            StyledImage {
-                id: wallpaper
-                visible: opacity > 0 && !blurLoader.active && !bgRoot.wallpaperIsVideo
-                opacity: (status === Image.Ready && !bgRoot.wallpaperIsVideo) ? bgRoot.wallpaperTransitionProgress : 0
-                scale: 1.03 - (bgRoot.wallpaperTransitionProgress * 0.03)
-                transformOrigin: Item.Center
-                asynchronous: true
-                cache: true
-                smooth: true
+            Item {
+                id: circleMask
+                anchors.fill: parent
+                visible: false
 
-                property int workspaceIndex: (bgRoot.monitor.activeWorkspace?.id ?? 1) - 1
-                property real middleFraction: 0.5
-                property real fraction: {
-                    // 0 - start of the picture
-                    // 1 - end of the picture
-                    if (bgRoot.totalWorkspaces <= 1) {
-                        return middleFraction;
-                    }
-                    return Math.max(0, Math.min(1, workspaceIndex / (bgRoot.totalWorkspaces - 1)));
+                Rectangle {
+                    readonly property real maxRadius: Math.hypot(circleMask.width, circleMask.height) / 2 * 1.08
+                    readonly property real currentRadius: maxRadius * bgRoot.wallpaperTransitionProgress
+                    width: currentRadius * 2
+                    height: currentRadius * 2
+                    radius: currentRadius
+                    anchors.centerIn: parent
+                    color: "white"
                 }
+            }
 
-                property real usedFractionX: {
-                    let usedFraction = middleFraction;
-                    if (Config.options.background.parallax.enableWorkspace && !bgRoot.verticalParallax) {
-                        usedFraction = fraction;
-                    }
-                    if (Config.options.background.parallax.enableSidebar) {
-                        let sidebarFraction = bgRoot.parallaxRation / bgRoot.workspaceChunkSize / 2;
-                        usedFraction += (sidebarFraction * GlobalStates.sidebarRightOpen - sidebarFraction * GlobalStates.sidebarLeftOpen);
-                    }
-                    return Math.max(0, Math.min(1, usedFraction));
-                }
-                property real usedFractionY: {
-                    let usedFraction = middleFraction;
-                    if (Config.options.background.parallax.enableWorkspace && bgRoot.verticalParallax) {
-                        usedFraction = fraction;
-                    }
-                    return Math.max(0, Math.min(1, usedFraction));
+            Item {
+                id: wallpaperContainer
+                anchors.fill: parent
+                layer.enabled: bgRoot.wallpaperTransitionProgress < 1 && !!bgRoot.previousWallpaperPath
+                layer.effect: OpacityMask {
+                    maskSource: circleMask
                 }
 
-                x: {
-                    if (bgRoot.screen.width > width) {
-                        // Center the picture
-                        return (bgRoot.screen.width - width) / 2;
-                    }
-                    return - bgRoot.parallaxTotalPixelsX * usedFractionX;
-                }
-                y: {
-                    if (bgRoot.screen.height > height) {
-                        // Center the picture
-                        return (bgRoot.screen.height - height) / 2;
-                    }
-                    return - bgRoot.parallaxTotalPixelsY * usedFractionY;
-                }
+                // Wallpaper
+                StyledImage {
+                    id: wallpaper
+                    visible: opacity > 0 && !blurLoader.active && !bgRoot.wallpaperIsVideo
+                    opacity: (status === Image.Ready && !bgRoot.wallpaperIsVideo) ? 1.0 : 0
+                    transformOrigin: Item.Center
+                    asynchronous: true
+                    cache: true
+                    smooth: true
 
-                source: bgRoot.wallpaperSafetyTriggered ? "" : bgRoot.displayedWallpaperPath
-                fillMode: Image.PreserveAspectCrop
-                onStatusChanged: {
-                    if (status === Image.Ready && bgRoot.wallpaperTransitionProgress < 1)
-                        wallpaperTransition.restart();
-                    else if (status === Image.Error) {
-                        wallpaperTransition.stop();
-                        bgRoot.previousWallpaperPath = "";
-                        bgRoot.wallpaperTransitionProgress = 1;
+                    property int workspaceIndex: (bgRoot.monitor.activeWorkspace?.id ?? 1) - 1
+                    property real middleFraction: 0.5
+                    property real fraction: {
+                        // 0 - start of the picture
+                        // 1 - end of the picture
+                        if (bgRoot.totalWorkspaces <= 1) {
+                            return middleFraction;
+                        }
+                        return Math.max(0, Math.min(1, workspaceIndex / (bgRoot.totalWorkspaces - 1)));
                     }
-                }
-                Behavior on x {
-                    NumberAnimation {
-                        duration: 600
-                        easing.type: Easing.OutCubic
+
+                    property real usedFractionX: {
+                        let usedFraction = middleFraction;
+                        if (Config.options.background.parallax.enableWorkspace && !bgRoot.verticalParallax) {
+                            usedFraction = fraction;
+                        }
+                        if (Config.options.background.parallax.enableSidebar) {
+                            let sidebarFraction = bgRoot.parallaxRation / bgRoot.workspaceChunkSize / 2;
+                            usedFraction += (sidebarFraction * GlobalStates.sidebarRightOpen - sidebarFraction * GlobalStates.sidebarLeftOpen);
+                        }
+                        return Math.max(0, Math.min(1, usedFraction));
                     }
-                }
-                Behavior on y {
-                    NumberAnimation {
-                        duration: 600
-                        easing.type: Easing.OutCubic
+                    property real usedFractionY: {
+                        let usedFraction = middleFraction;
+                        if (Config.options.background.parallax.enableWorkspace && bgRoot.verticalParallax) {
+                            usedFraction = fraction;
+                        }
+                        return Math.max(0, Math.min(1, usedFraction));
                     }
+
+                    x: {
+                        if (bgRoot.screen.width > width) {
+                            // Center the picture
+                            return (bgRoot.screen.width - width) / 2;
+                        }
+                        return - bgRoot.parallaxTotalPixelsX * usedFractionX;
+                    }
+                    y: {
+                        if (bgRoot.screen.height > height) {
+                            // Center the picture
+                            return (bgRoot.screen.height - height) / 2;
+                        }
+                        return - bgRoot.parallaxTotalPixelsY * usedFractionY;
+                    }
+
+                    source: bgRoot.wallpaperSafetyTriggered ? "" : bgRoot.displayedWallpaperPath
+                    fillMode: Image.PreserveAspectCrop
+                    onStatusChanged: {
+                        if (status === Image.Ready && bgRoot.wallpaperTransitionProgress < 1)
+                            wallpaperTransition.restart();
+                        else if (status === Image.Error) {
+                            wallpaperTransition.stop();
+                            bgRoot.previousWallpaperPath = "";
+                            bgRoot.wallpaperTransitionProgress = 1;
+                        }
+                    }
+                    Behavior on x {
+                        NumberAnimation {
+                            duration: 600
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                    Behavior on y {
+                        NumberAnimation {
+                            duration: 600
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                    width: bgRoot.scaledWallpaperWidth
+                    height: bgRoot.scaledWallpaperHeight
                 }
-                width: bgRoot.scaledWallpaperWidth
-                height: bgRoot.scaledWallpaperHeight
             }
 
             Loader {
                 id: blurLoader
                 active: Config.options.lock.blur.enable && (GlobalStates.screenLocked || scaleAnim.running)
-                anchors.fill: wallpaper
+                anchors.fill: parent
                 scale: GlobalStates.screenLocked ? Config.options.lock.blur.extraZoom : 1
                 Behavior on scale {
                     NumberAnimation {
@@ -330,8 +353,30 @@ Variants {
                 }
 
                 FadeLoader {
-                    shown: Config.options.background.widgets.screenTime.enable && bgRoot.modelData.name === "eDP-1"
+                    shown: Config.options.background.widgets.screenTime.enable
                     sourceComponent: ScreenTimeWidget {
+                        screenWidth: bgRoot.screen.width
+                        screenHeight: bgRoot.screen.height
+                        scaledScreenWidth: bgRoot.screen.width
+                        scaledScreenHeight: bgRoot.screen.height
+                        wallpaperScale: 1
+                    }
+                }
+
+                FadeLoader {
+                    shown: Config.options.background.widgets.github.enable
+                    sourceComponent: GithubBackgroundWidget {
+                        screenWidth: bgRoot.screen.width
+                        screenHeight: bgRoot.screen.height
+                        scaledScreenWidth: bgRoot.screen.width
+                        scaledScreenHeight: bgRoot.screen.height
+                        wallpaperScale: 1
+                    }
+                }
+
+                FadeLoader {
+                    shown: Config.options.background.widgets.leetcode.enable
+                    sourceComponent: LeetcodeBackgroundWidget {
                         screenWidth: bgRoot.screen.width
                         screenHeight: bgRoot.screen.height
                         scaledScreenWidth: bgRoot.screen.width

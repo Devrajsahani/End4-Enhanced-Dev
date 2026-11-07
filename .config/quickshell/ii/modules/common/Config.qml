@@ -221,12 +221,28 @@ Singleton {
                         property string placementStrategy: "free" // "free", "leastBusy", "mostBusy"
                         property real x: 400
                         property real y: 100
+                        property real scale: 1.0
                     }
                     property JsonObject screenTime: JsonObject {
                         property bool enable: true
                         property string placementStrategy: "free" // "free", "leastBusy", "mostBusy"
                         property real x: 36
                         property real y: 116
+                        property real scale: 1.0
+                    }
+                    property JsonObject github: JsonObject {
+                        property bool enable: true
+                        property string placementStrategy: "free"
+                        property real x: 36
+                        property real y: 460
+                        property real scale: 1.0
+                    }
+                    property JsonObject leetcode: JsonObject {
+                        property bool enable: true
+                        property string placementStrategy: "free"
+                        property real x: 36
+                        property real y: 640
+                        property real scale: 1.0
                     }
                 }
                 property string wallpaperPath: ""

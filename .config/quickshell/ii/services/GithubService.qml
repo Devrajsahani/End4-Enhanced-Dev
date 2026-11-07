@@ -17,6 +17,8 @@ Singleton {
     property bool isClean: true
     property var localCommits: []
     property var remoteEvents: []
+    property var contributions: []
+    property int totalContributions: 0
     property bool isLoading: fetchProc.running
 
     function refresh() {
@@ -49,6 +51,10 @@ Singleton {
                     }
                     if (data.remote) {
                         root.remoteEvents = data.remote || [];
+                    }
+                    if (data.contributions) {
+                        root.totalContributions = data.contributions.total || 0;
+                        root.contributions = data.contributions.contributions || [];
                     }
                 } catch (e) {
                     console.log("[GithubService] Parse error:", e);

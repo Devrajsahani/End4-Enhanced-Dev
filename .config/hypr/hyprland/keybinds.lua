@@ -49,11 +49,11 @@ hl.bind("SHIFT + SUPER + ALT + Slash", hl.dsp.exec_cmd("qs -p $HOME/.config/quic
 --     { locked = true, repeating = true })
 
 -- Wallpaper selector is managed via modern grid picker on SUPER + ALT + W
-hl.bind("SUPER + W", hl.dsp.global("quickshell:wallpaperSelectorToggle"))
+hl.bind("SUPER + W", hl.dsp.global("quickshell:wallpaperSelectorToggle"),
+    { description = "Appearance: Open Wallpaper Selector" })
 hl.bind("SUPER + R", hl.dsp.global("quickshell:wallpaperSelectorToggle"))
 hl.bind("CTRL + SUPER + SHIFT + D", hl.dsp.global("quickshell:toggleLightDark"),
     { description = "Shell: Toggle light/dark mode" })
-hl.bind("SUPER + W", hl.dsp.exec_cmd(qsIsAlive .. " || " .. qsScripts .. "/colors/switchwall.sh"))
 hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd("killall ydotool qs quickshell; qs -c $qsConfig &"),
     { description = "Shell: Restart widgets" })
 hl.bind("CTRL + SUPER + P", hl.dsp.global("quickshell:panelFamilyCycle"), { description = "Shell: Cycle panel family" })

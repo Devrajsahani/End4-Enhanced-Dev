@@ -87,16 +87,35 @@ def get_remote_github_events(username="Devrajsahani"):
     except Exception:
         return []
 
+def get_contributions_graph(username="Devrajsahani"):
+    if not username:
+        return {"total": 0, "contributions": []}
+    url = f"https://github-contributions-api.jogruber.de/v4/{username}?y=last"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            total = data.get("total", {}).get("lastYear", 0)
+            contributions = data.get("contributions", [])
+            return {
+                "total": total,
+                "contributions": contributions
+            }
+    except Exception:
+        return {"total": 0, "contributions": []}
+
 def main():
     username = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] else "Devrajsahani"
     repo_dir = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else DEFAULT_REPO
 
     local_info = get_local_git_info(repo_dir)
     remote_events = get_remote_github_events(username)
+    contrib_info = get_contributions_graph(username)
 
     result = {
         "status": "success",
         "username": username,
+        "contributions": contrib_info,
         "local": local_info or {
             "name": "End4-Enhanced-Dev",
             "branch": "main",

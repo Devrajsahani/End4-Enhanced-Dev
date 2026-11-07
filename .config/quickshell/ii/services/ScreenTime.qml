@@ -12,6 +12,9 @@ Singleton {
     property string status: "Waiting for screen-time data…"
     property int totalSeconds: 0
     property var apps: []
+    property var hourly: []
+    property string uptime: "—"
+    property int currentHour: 12
     property string updatedAt: ""
 
     function refresh() {
@@ -44,6 +47,9 @@ Singleton {
                     }
                     root.totalSeconds = result.totalSeconds ?? 0
                     root.apps = result.apps ?? []
+                    root.hourly = result.hourly ?? []
+                    root.uptime = result.uptime ?? "—"
+                    root.currentHour = result.currentHour ?? 12
                     root.updatedAt = result.updated ?? ""
                     root.available = true
                     root.status = root.totalSeconds > 0 ? "" : "No tracked time yet today"

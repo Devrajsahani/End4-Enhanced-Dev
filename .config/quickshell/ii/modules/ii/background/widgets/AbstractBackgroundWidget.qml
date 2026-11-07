@@ -17,9 +17,10 @@ AbstractWidget {
     required property real wallpaperScale
     property bool visibleWhenLocked: false
     property var configEntry: Config.options.background.widgets[configEntryName]
-    property string placementStrategy: configEntry.placementStrategy
-    property real targetX: Math.max(0, Math.min(configEntry.x, scaledScreenWidth - width))
-    property real targetY : Math.max(0, Math.min(configEntry.y, scaledScreenHeight - height))
+    property string placementStrategy: configEntry?.placementStrategy ?? "free"
+    property real widgetScale: (configEntry && configEntry.scale !== undefined && configEntry.scale > 0) ? configEntry.scale : 1.0
+    property real targetX: Math.max(0, Math.min(configEntry?.x ?? 0, scaledScreenWidth - width * widgetScale))
+    property real targetY : Math.max(0, Math.min(configEntry?.y ?? 0, scaledScreenHeight - height * widgetScale))
     x: targetX
     y: targetY
     visible: opacity > 0
@@ -27,7 +28,8 @@ AbstractWidget {
     Behavior on opacity {
         animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
     }
-    scale: (draggable && containsPress) ? 1.05 : 1
+    transformOrigin: Item.TopLeft
+    scale: ((draggable && containsPress) ? 1.04 : 1.0) * widgetScale
     Behavior on scale {
         animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
     }
@@ -36,8 +38,10 @@ AbstractWidget {
     onReleased: {
         root.targetX = root.x;
         root.targetY = root.y;
-        configEntry.x = root.targetX;
-        configEntry.y = root.targetY;
+        if (configEntry) {
+            configEntry.x = root.targetX;
+            configEntry.y = root.targetY;
+        }
     }
 
     property bool needsColText: false

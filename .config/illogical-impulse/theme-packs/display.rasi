@@ -92,7 +92,7 @@ element-text {
 
 textbox-help {
     expand: false;
-    str: "󰌑 Click or Press Enter to Apply Profile  •  󰁔 ↑ / ↓ to Navigate  •  󱊷 Esc to Exit";
+    str: "Click or Press Enter to Apply Profile  •  ↑ / ↓ to Navigate  •  Esc to Exit";
     horizontal-align: 0.5;
     text-color: @on-surface-variant;
     font: "Google Sans Flex 10";

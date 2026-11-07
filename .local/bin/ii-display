@@ -14,6 +14,16 @@ fi
 THEME_DIR="$HOME/.config/illogical-impulse/theme-packs"
 ROFI_THEME="$THEME_DIR/display.rasi"
 PROFILE_FILE="$HOME/.config/hypr/display-profile"
+PREFERRED_FILE="$HOME/.config/hypr/preferred-external-profile"
+
+# Detect external HDMI connection accurately (strict equality against "connected")
+external_connected=false
+for f in /sys/class/drm/card*-HDMI-A-1/status; do
+    if [[ -r "$f" ]] && [[ "$(tr -d '[:space:]' < "$f")" == "connected" ]]; then
+        external_connected=true
+        break
+    fi
+done
 
 # Read current profile
 current_profile="laptop-only"
@@ -21,16 +31,14 @@ if [[ -f "$PROFILE_FILE" ]]; then
     current_profile=$(tr -d '[:space:]' < "$PROFILE_FILE")
 fi
 
-# Detect external HDMI connection
-external_connected=false
-for f in /sys/class/drm/card*-HDMI-A-1/status; do
-    if [[ -r "$f" ]] && grep -qi "connected" "$f"; then
-        external_connected=true
-        break
-    fi
-done
+# If HDMI is unplugged, enforce laptop-only as the default
+if ! $external_connected && [[ "$current_profile" != "laptop-only" ]]; then
+    current_profile="laptop-only"
+    printf '%s\n' "laptop-only" > "$PROFILE_FILE"
+    hyprctl eval 'applyDisplayProfile("laptop-only")' >/dev/null 2>&1 || true
+fi
 
-# Active badges
+# Active badges & selected row
 laptop_badge=""
 extend_badge=""
 external_badge=""
@@ -53,9 +61,9 @@ if ! $external_connected; then
 fi
 
 # Card definitions (Pango markup for Rofi)
-card_laptop="<b>󰌢  Laptop Screen Only</b>   <span alpha='65%'>│</span>   <span size='smaller' alpha='80%'>Internal eDP-1 (1080p@60Hz) • External screen off</span>${laptop_badge}"
-card_extend="<b>󰍹  Extend Displays (Dual)</b>   <span alpha='65%'>│</span>   <span size='smaller' alpha='80%'>Dual side-by-side • eDP-1 + HDMI-A-1</span>${extend_badge}${hdmi_status}"
-card_external="<b>󰍹  External Monitor Only</b>   <span alpha='65%'>│</span>   <span size='smaller' alpha='80%'>Acer 120Hz (HDMI-A-1) • Laptop screen off</span>${external_badge}${hdmi_status}"
+card_laptop="<b>💻  Laptop Screen Only</b>   <span alpha='65%'>│</span>   <span size='smaller' alpha='80%'>Internal eDP-1 (1080p@144Hz) • External screen off</span>${laptop_badge}"
+card_extend="<b>🖥   Extend Displays (Dual)</b>   <span alpha='65%'>│</span>   <span size='smaller' alpha='80%'>Dual side-by-side • eDP-1 + HDMI-A-1</span>${extend_badge}${hdmi_status}"
+card_external="<b>🖥   External Monitor Only</b>   <span alpha='65%'>│</span>   <span size='smaller' alpha='80%'>Acer 120Hz (HDMI-A-1) • Laptop screen off</span>${external_badge}${hdmi_status}"
 
 items=("$card_laptop" "$card_extend" "$card_external")
 
@@ -65,24 +73,32 @@ choice=$(printf '%s\n' "${items[@]}" | rofi \
     -markup-rows \
     -selected-row "$selected_row" \
     -theme "$ROFI_THEME" \
-    -p "󰍹 Display Mode") || exit 0
+    -p "🖥  Display Mode") || exit 0
 
 [[ -z "$choice" ]] && exit 0
 
-# Determine selected target
+# Determine selected target (robust regex matching)
 new_profile=""
 display_name=""
 
 case "$choice" in
-    *"Laptop Only"*)
+    *"Laptop Screen"*|*"Laptop Only"*|*"eDP-1"*)
         new_profile="laptop-only"
-        display_name="Laptop Screen Only (eDP-1)"
+        display_name="Laptop Screen Only (eDP-1 @ 144Hz)"
         ;;
-    *"Extend Displays"*)
+    *"Extend Displays"*|*"Dual"*)
+        if ! $external_connected; then
+            notify-send -a 'Display Switcher' -i 'dialog-warning' 'HDMI Cable Not Connected' 'Please plug in your HDMI cable before enabling extended displays.'
+            exit 1
+        fi
         new_profile="extend"
         display_name="Extended Dual Displays (eDP-1 + HDMI)"
         ;;
-    *"External Only"*)
+    *"External Monitor"*|*"External Only"*|*"HDMI"*)
+        if ! $external_connected; then
+            notify-send -a 'Display Switcher' -i 'dialog-warning' 'HDMI Cable Not Connected' 'Please plug in your HDMI cable before enabling external display only.'
+            exit 1
+        fi
         new_profile="external-only"
         display_name="External Monitor Only (HDMI-A-1)"
         ;;
@@ -97,11 +113,14 @@ if command -v qs >/dev/null 2>&1; then
     qs -c ii ipc call search close 2>/dev/null || true
 fi
 
-# Save and apply profile
+# Save profile
 previous="$current_profile"
 printf '%s\n' "$new_profile" > "$PROFILE_FILE"
+if [[ "$new_profile" != "laptop-only" ]]; then
+    printf '%s\n' "$new_profile" > "$PREFERRED_FILE"
+fi
 
-if ! hyprctl eval 'applyDisplayProfile()' >/dev/null 2>&1; then
+if ! hyprctl eval "applyDisplayProfile(\"$new_profile\")" >/dev/null 2>&1; then
     printf '%s\n' "$previous" > "$PROFILE_FILE"
     notify-send -a 'Display Switcher' -i 'dialog-error' 'Display Profile Failed' 'Failed to apply profile. Restored previous configuration.'
     exit 1
