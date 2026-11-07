@@ -1,6 +1,7 @@
 -- User custom keybindings for Hyprland & QuickShell Rice
--- Spotlight Launcher (ALT + Space)
+-- Spotlight Launcher (ALT + Space) & Session Menu (SUPER + Escape)
 hl.bind("ALT + Space", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-spotlight"), {description = "App: Spotlight Launcher"})
+hl.bind("SUPER + Escape", hl.dsp.global("quickshell:sessionToggle"), {description = "Session: Toggle power menu (Shutdown/Restart/Lock/Sleep)"})
 
 -- Config editing & Display profiles
 hl.bind("CTRL+SUPER+ALT+Slash", hl.dsp.exec_cmd("xdg-open ~/.config/hypr/custom/keybinds.lua"), {description = "System: Edit user keybinds"})
