@@ -219,7 +219,7 @@ ButtonMouseArea {
                 delegate: WorkspaceItem {
                     id: wsApp
                     property var biggestWindow: wsModel.biggestWindow[index]
-                    property var mainAppIconSource: Quickshell.iconPath(AppSearch.guessIcon(biggestWindow?.class), "image-missing")
+                    property var mainAppIconSource: (biggestWindow && biggestWindow.class) ? Quickshell.iconPath(AppSearch.guessIcon(biggestWindow.class), "image-missing") : "image-missing"
 
                     AppIcon {
                         id: appIcon

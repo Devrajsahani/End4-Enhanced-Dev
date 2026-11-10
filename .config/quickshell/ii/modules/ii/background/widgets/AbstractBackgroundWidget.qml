@@ -19,6 +19,8 @@ AbstractWidget {
     property var configEntry: Config.options.background.widgets[configEntryName]
     property string placementStrategy: configEntry?.placementStrategy ?? "free"
     property real widgetScale: (configEntry && configEntry.scale !== undefined && configEntry.scale > 0) ? configEntry.scale : 1.0
+    width: implicitWidth
+    height: implicitHeight
     property real targetX: Math.max(0, Math.min(configEntry?.x ?? 0, scaledScreenWidth - width * widgetScale))
     property real targetY : Math.max(0, Math.min(configEntry?.y ?? 0, scaledScreenHeight - height * widgetScale))
     x: targetX

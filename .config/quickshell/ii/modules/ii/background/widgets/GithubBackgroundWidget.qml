@@ -23,6 +23,8 @@ AbstractBackgroundWidget {
 
     Rectangle {
         id: card
+        width: implicitWidth
+        height: implicitHeight
         implicitWidth: cardContent.implicitWidth + 36
         implicitHeight: cardContent.implicitHeight + 32
         radius: Appearance.rounding.windowRounding

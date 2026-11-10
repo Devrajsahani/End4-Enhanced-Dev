@@ -12,4 +12,6 @@ Kirigami.Icon {
 
     roundToIconSize: false
     animated: true // It's just fading from one icon to another
+    fallback: "image-missing"
+    source: "image-missing"
 }
