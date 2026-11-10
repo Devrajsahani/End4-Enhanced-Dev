@@ -56,6 +56,24 @@
           "file": "Catppuccin-Mocha/08-dark-waves.jpg",
           "source": "https://raw.githubusercontent.com/adarsh-67r/catppuccin-mocha-walls/main/dark-waves.jpg",
           "repository": "https://github.com/adarsh-67r/catppuccin-mocha-walls"
+        },
+        {
+          "name": "Giyu Water Samurai",
+          "file": "Catppuccin-Mocha/09-giyu-water-samurai.png",
+          "source": "https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/catpuccin_samurai.png",
+          "repository": "https://github.com/D3Ext/aesthetic-wallpapers"
+        },
+        {
+          "name": "Lofi Morning Desk",
+          "file": "Catppuccin-Mocha/10-lofi-morning-desk.png",
+          "source": "https://raw.githubusercontent.com/JaKooLit/Wallpaper-Bank/main/wallpapers/Lofi%20-%20Chill%20Room.png",
+          "repository": "https://github.com/JaKooLit/Wallpaper-Bank"
+        },
+        {
+          "name": "Polar Aurora Peaks",
+          "file": "Catppuccin-Mocha/11-polar-aurora-peaks.png",
+          "source": "https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/polar_catppuccin.png",
+          "repository": "https://github.com/D3Ext/aesthetic-wallpapers"
         }
       ],
       "cover": "Catppuccin-Mocha/01-blue-hour.jpg"
@@ -113,6 +131,18 @@
           "file": "Tokyo-Night/08-stripes-00-3840x2160.jpg",
           "source": "https://raw.githubusercontent.com/tokyo-night/wallpapers/main/night/minimal/stripes_00_3840x2160.png",
           "repository": "https://github.com/tokyo-night/wallpapers"
+        },
+        {
+          "name": "Tokyo Rain & Neon Bus",
+          "file": "Tokyo-Night/09-tokyo-rain-neon-bus.png",
+          "source": "https://raw.githubusercontent.com/JaKooLit/Wallpaper-Bank/main/wallpapers/City-Rainy-Night.png",
+          "repository": "https://github.com/JaKooLit/Wallpaper-Bank"
+        },
+        {
+          "name": "Anime City Cyber Skyline",
+          "file": "Tokyo-Night/10-anime-city-cyber-sky.png",
+          "source": "https://raw.githubusercontent.com/JaKooLit/Wallpaper-Bank/main/wallpapers/Anime-City-Night.png",
+          "repository": "https://github.com/JaKooLit/Wallpaper-Bank"
         }
       ],
       "cover": "Tokyo-Night/02-neon-street.jpg"
@@ -170,6 +200,18 @@
           "file": "Gruvbox-Dark/08-platform.jpg",
           "source": "https://raw.githubusercontent.com/vctrblck/gruvbox-wallpapers/main/platform.jpg",
           "repository": "https://github.com/vctrblck/gruvbox-wallpapers"
+        },
+        {
+          "name": "Pixel Rooftop Retro City",
+          "file": "Gruvbox-Dark/09-pixel-rooftop-retrocity.png",
+          "source": "https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/gruvbox_retrocity.png",
+          "repository": "https://github.com/D3Ext/aesthetic-wallpapers"
+        },
+        {
+          "name": "Gruvbox Attic Study",
+          "file": "Gruvbox-Dark/10-gruvbox-attic-study.png",
+          "source": "https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/gruvbox_room.png",
+          "repository": "https://github.com/D3Ext/aesthetic-wallpapers"
         }
       ],
       "cover": "Gruvbox-Dark/01-forest-cabin.jpg"
@@ -227,6 +269,18 @@
           "file": "Everforest-Dark/08-japanese-store.jpg",
           "source": "https://raw.githubusercontent.com/Apeiros-46B/everforest-walls/main/other/japanese_store.jpg",
           "repository": "https://github.com/Apeiros-46B/everforest-walls"
+        },
+        {
+          "name": "Misty Pine Everforest",
+          "file": "Everforest-Dark/09-misty-pine-everforest.png",
+          "source": "https://raw.githubusercontent.com/JaKooLit/Wallpaper-Bank/main/wallpapers/Fog-Forest-Everforest.png",
+          "repository": "https://github.com/JaKooLit/Wallpaper-Bank"
+        },
+        {
+          "name": "Dark Enchanted Woodland",
+          "file": "Everforest-Dark/10-dark-enchanted-woodland.png",
+          "source": "https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/dark_forest.png",
+          "repository": "https://github.com/D3Ext/aesthetic-wallpapers"
         }
       ],
       "cover": "Everforest-Dark/01-misty-forest.jpg"
@@ -284,6 +338,18 @@
           "file": "Nord/08-ign-twilight.jpg",
           "source": "https://raw.githubusercontent.com/linuxdotexe/nordic-wallpapers/master/dynamic-wallpapers/ZorinMountain/ign_Twilight.jpg",
           "repository": "https://github.com/linuxdotexe/nordic-wallpapers"
+        },
+        {
+          "name": "Nord Night Highway Trails",
+          "file": "Nord/09-nord-night-highway-trails.png",
+          "source": "https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/nord_dark_city.png",
+          "repository": "https://github.com/D3Ext/aesthetic-wallpapers"
+        },
+        {
+          "name": "Nordic Lunar Astronaut",
+          "file": "Nord/10-nordic-astronaut-moon.png",
+          "source": "https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/astronaut-nord.png",
+          "repository": "https://github.com/D3Ext/aesthetic-wallpapers"
         }
       ],
       "cover": "Nord/02-quiet-lake.jpg"
@@ -353,6 +419,24 @@
           "file": "Cars-Racing/10-car-wreck.jpg",
           "source": "https://raw.githubusercontent.com/harilvfs/wallpapers/main/car-wreck.png",
           "repository": "https://github.com/harilvfs/wallpapers"
+        },
+        {
+          "name": "Cyberpunk Supercar",
+          "file": "Cars-Racing/11-cyberpunk-supercar.png",
+          "source": "https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/cyberpunk_car.png",
+          "repository": "https://github.com/D3Ext/aesthetic-wallpapers"
+        },
+        {
+          "name": "Night Drive Headlights",
+          "file": "Cars-Racing/12-night-drive-headlights.jpg",
+          "source": "https://raw.githubusercontent.com/JaKooLit/Wallpaper-Bank/main/wallpapers/Purple-clouds-car-headlights.jpg",
+          "repository": "https://github.com/JaKooLit/Wallpaper-Bank"
+        },
+        {
+          "name": "Cyber Street Platform",
+          "file": "Cars-Racing/13-cyber-street-platform.jpg",
+          "source": "https://raw.githubusercontent.com/JaKooLit/Wallpaper-Bank/main/wallpapers/Video%20Game%20-%20The%20Blackstreets.jpeg",
+          "repository": "https://github.com/JaKooLit/Wallpaper-Bank"
         }
       ],
       "cover": "Cars-Racing/04-garage.jpg"
