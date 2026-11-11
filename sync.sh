@@ -49,6 +49,11 @@ for dir in kitty matugen wlogout cava fuzzel fish; do
     fi
 done
 
+# .config individual files
+if [[ -f "$HOME/.config/claude-desktop-flags.conf" ]]; then
+    cp -p "$HOME/.config/claude-desktop-flags.conf" "$REPO_DIR/.config/"
+fi
+
 # .local/bin custom scripts
 mkdir -p "$REPO_DIR/.local/bin"
 for script in ii-anim ii-audio ii-bar-layout ii-control ii-display ii-keybinds ii-slider ii-spotlight ii-theme ii-github-fetch ii-leetcode-fetch; do
