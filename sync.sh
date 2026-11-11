@@ -37,8 +37,8 @@ rsync -av --delete \
     --exclude="backup-*" \
     "$HOME/.config/illogical-impulse/" "$REPO_DIR/.config/illogical-impulse/"
 
-# .config/kitty, matugen, wlogout, cava, fuzzel, fish
-for dir in kitty matugen wlogout cava fuzzel fish; do
+# .config/kitty, matugen, wlogout, cava, fuzzel, fish, wireplumber, pipewire
+for dir in kitty matugen wlogout cava fuzzel fish wireplumber pipewire; do
     if [[ -d "$HOME/.config/$dir" ]]; then
         mkdir -p "$REPO_DIR/.config/$dir"
         rsync -av --delete \
@@ -56,7 +56,7 @@ fi
 
 # .local/bin custom scripts
 mkdir -p "$REPO_DIR/.local/bin"
-for script in ii-anim ii-audio ii-bar-layout ii-control ii-display ii-keybinds ii-slider ii-spotlight ii-theme ii-github-fetch ii-leetcode-fetch; do
+for script in ii-anim ii-audio ii-bar-layout ii-control ii-display ii-fix-bt ii-keybinds ii-slider ii-spotlight ii-theme ii-github-fetch ii-leetcode-fetch; do
     if [[ -f "$HOME/.local/bin/$script" ]]; then
         cp -p "$HOME/.local/bin/$script" "$REPO_DIR/.local/bin/"
     fi

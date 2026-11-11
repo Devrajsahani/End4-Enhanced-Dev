@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Fix MediaTek MT7921 / btusb Bluetooth audio lag, USB autosuspend, ASPM, and RT scheduling
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+    exec sudo "$0" "$@"
+fi
+
+echo "==> 1. Installing rtkit, wireless-regdb, bluez-utils, and usbutils..."
+pacman -S --needed --noconfirm rtkit wireless-regdb bluez-utils usbutils
+systemctl enable --now rtkit-daemon
+
+echo "==> 2. Configuring btusb and mt7921e kernel module options..."
+cat <<'EOF' > /etc/modprobe.d/bt-mt7921-fix.conf
+# Disable USB autosuspend on btusb (prevents MT7921 HCI packet drops & stutter)
+options btusb enable_autosuspend=0
+# Disable PCIe ASPM on mt7921e (prevents combo Wi-Fi/BT radio stalls)
+options mt7921e disable_aspm=1
+EOF
+
+# Apply live immediately if writable
+[[ -w /sys/module/btusb/parameters/enable_autosuspend ]] && echo N > /sys/module/btusb/parameters/enable_autosuspend
+[[ -w /sys/module/mt7921e/parameters/disable_aspm ]] && echo Y > /sys/module/mt7921e/parameters/disable_aspm
+
+echo "==> 3. Disabling USB autosuspend for MediaTek/Foxconn Bluetooth adapter (0489:e0cd)..."
+cat <<'EOF' > /etc/udev/rules.d/50-bluetooth-usb-power.rules
+# Keep Foxconn/MediaTek MT7921 Bluetooth adapter powered on (no runtime autosuspend)
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0489", ATTR{idProduct}=="e0cd", ATTR{power/control}="on", ATTR{power/autosuspend}="-1"
+EOF
+
+for dev in /sys/bus/usb/devices/*; do
+    if [[ -f "$dev/idVendor" && -f "$dev/idProduct" ]]; then
+        vid=$(cat "$dev/idVendor" 2>/dev/null || true)
+        pid=$(cat "$dev/idProduct" 2>/dev/null || true)
+        if [[ "$vid" == "0489" && "$pid" == "e0cd" ]]; then
+            echo on > "$dev/power/control"
+            echo -1 > "$dev/power/autosuspend"
+            echo "    Applied power/control=on to $dev"
+        fi
+    fi
+done
+udevadm control --reload-rules
+
+echo "==> 4. Disabling Wi-Fi power saving on combo card..."
+mkdir -p /etc/NetworkManager/conf.d
+cat <<'EOF' > /etc/NetworkManager/conf.d/wifi-powersave-off.conf
+[connection]
+wifi.powersave = 2
+EOF
+systemctl reload NetworkManager || true
+if command -v iw >/dev/null 2>&1; then
+    iw dev wlo1 set power_save off 2>/dev/null || true
+fi
+
+echo "==> 5. Updating /etc/bluetooth/main.conf for multipoint stability..."
+if [[ -f /etc/bluetooth/main.conf && ! -f /etc/bluetooth/main.conf.bak ]]; then
+    cp -p /etc/bluetooth/main.conf /etc/bluetooth/main.conf.bak
+fi
+python3 - <<'PY'
+import re
+
+path = "/etc/bluetooth/main.conf"
+with open(path, "r") as f:
+    text = f.read()
+
+replacements = [
+    (r"(?m)^#?\s*MultiProfile\s*=.*$", "MultiProfile = multiple"),
+    (r"(?m)^#?\s*FastConnectable\s*=.*$", "FastConnectable = true"),
+    (r"(?m)^#?\s*AutoEnable\s*=.*$", "AutoEnable = true"),
+]
+
+for pattern, repl in replacements:
+    if re.search(pattern, text):
+        text = re.sub(pattern, repl, text, count=1)
+    else:
+        text = text.replace("[General]", f"[General]\n{repl}", 1)
+
+with open(path, "w") as f:
+    f.write(text)
+PY
+
+systemctl restart bluetooth
+
+echo ""
+echo "==> Done! Please restart your user PipeWire session cleanly once (or reboot):"
+echo "    systemctl --user restart pipewire pipewire-pulse wireplumber"
