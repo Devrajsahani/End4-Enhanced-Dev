@@ -490,60 +490,6 @@ Item { // Bar content region
                 }
             }
 
-            BarGroup { // Dedicated Volume Pill showing current level & icon
-                surfaceVisible: !root.unifiedControls && root.selectedBarLayout !== "minimal"
-                Layout.alignment: Qt.AlignVCenter
-                padding: 4
-
-                RippleButton {
-                    id: volumeBarButton
-                    implicitWidth: volumeBarRow.implicitWidth + 16
-                    implicitHeight: 28
-                    buttonRadius: Appearance.rounding.full
-                    colBackground: "transparent"
-                    colBackgroundHover: ColorUtils.applyAlpha(Appearance.m3colors.m3primary, 0.12)
-                    onClicked: Audio.toggleMute()
-
-                    WheelHandler {
-                        onWheel: (event) => {
-                            if (event.angleDelta.y > 0) Audio.incrementVolume();
-                            else if (event.angleDelta.y < 0) Audio.decrementVolume();
-                        }
-                    }
-
-                    contentItem: RowLayout {
-                        id: volumeBarRow
-                        anchors.centerIn: parent
-                        spacing: 4
-
-                        MaterialSymbol {
-                            iconSize: 20
-                            color: Audio.sink?.audio?.muted ? Appearance.m3colors.m3error : Appearance.colors.colOnLayer1
-                            text: {
-                                if (Audio.sink?.audio?.muted) return "volume_off";
-                                const v = Audio.value;
-                                if (v > 0.6) return "volume_up";
-                                if (v > 0.2) return "volume_down";
-                                return "volume_mute";
-                            }
-                        }
-
-                        StyledText {
-                            text: Audio.sink?.audio?.muted ? "0%" : `${Math.round(Audio.value * 100)}%`
-                            font.pixelSize: Appearance.font.pixelSize.small
-                            color: Audio.sink?.audio?.muted ? Appearance.m3colors.m3error : Appearance.colors.colOnLayer1
-                            font.bold: true
-                        }
-                    }
-
-                    StyledToolTip {
-                        text: Audio.sink?.audio?.muted
-                            ? Translation.tr("Volume: Muted (Click to unmute, scroll to adjust)")
-                            : `${Translation.tr("Volume")}: ${Math.round(Audio.value * 100)}% (Click to mute, scroll to adjust)`
-                    }
-                }
-            }
-
             BarGroup { // Power profile is its own clickable pill
                 surfaceVisible: !root.unifiedControls && root.selectedBarLayout !== "minimal"
                 Layout.alignment: Qt.AlignVCenter

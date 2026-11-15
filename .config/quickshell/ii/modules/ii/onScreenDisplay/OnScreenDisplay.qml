@@ -152,23 +152,23 @@ Scope {
             Item {
                 id: headerPill
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: root.osdActive ? (Appearance.sizes.barHeight + 12) : (Appearance.sizes.barHeight - 35)
+                y: root.osdActive ? (Appearance.sizes.barHeight + 8) : (Appearance.sizes.barHeight - 30)
                 opacity: root.osdActive ? 1.0 : 0.0
-                implicitWidth: 320
-                implicitHeight: 58
+                implicitWidth: Appearance.sizes.osdWidth + 16
+                implicitHeight: 44
                 width: implicitWidth
                 height: implicitHeight
 
                 Behavior on y {
                     NumberAnimation {
-                        duration: 250
+                        duration: 220
                         easing.type: Easing.OutBack
                         easing.overshoot: 1.1
                     }
                 }
                 Behavior on opacity {
                     NumberAnimation {
-                        duration: 180
+                        duration: 160
                         easing.type: Easing.OutCubic
                     }
                 }
@@ -182,8 +182,8 @@ Scope {
                     anchors.fill: parent
                     radius: Appearance.rounding.full
                     color: ColorUtils.applyAlpha(Appearance.m3colors.m3surfaceContainerHigh, 0.94)
-                    border.width: 1.5
-                    border.color: ColorUtils.applyAlpha(Appearance.m3colors.m3outlineVariant, 0.45)
+                    border.width: 1
+                    border.color: ColorUtils.applyAlpha(Appearance.m3colors.m3outlineVariant, 0.35)
 
                     MouseArea {
                         anchors.fill: parent
@@ -193,18 +193,18 @@ Scope {
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 12
-                        anchors.rightMargin: 16
-                        anchors.topMargin: 8
-                        anchors.bottomMargin: 8
-                        spacing: 12
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 12
+                        anchors.topMargin: 4
+                        anchors.bottomMargin: 4
+                        spacing: 8
 
-                        // Icon badge
+                        // Compact Icon badge
                         Rectangle {
                             id: iconBadge
-                            implicitWidth: 40
-                            implicitHeight: 40
-                            radius: 20
+                            implicitWidth: 28
+                            implicitHeight: 28
+                            radius: 14
                             Layout.alignment: Qt.AlignVCenter
 
                             readonly property bool isErrorState: {
@@ -215,11 +215,11 @@ Scope {
 
                             color: isErrorState
                                 ? ColorUtils.applyAlpha(Appearance.m3colors.m3error, 0.18)
-                                : ColorUtils.applyAlpha(Appearance.m3colors.m3primary, 0.14)
+                                : ColorUtils.applyAlpha(Appearance.m3colors.m3primary, 0.12)
 
                             MaterialSymbol {
                                 anchors.centerIn: parent
-                                iconSize: 22
+                                iconSize: 18
                                 color: iconBadge.isErrorState
                                     ? Appearance.m3colors.m3error
                                     : Appearance.colors.colPrimary
@@ -249,7 +249,7 @@ Scope {
                         ColumnLayout {
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignVCenter
-                            spacing: 4
+                            spacing: 3
 
                             // Title & percentage row
                             RowLayout {
@@ -257,8 +257,7 @@ Scope {
 
                                 StyledText {
                                     Layout.fillWidth: true
-                                    font.pixelSize: Appearance.font.pixelSize.normal
-                                    font.bold: true
+                                    font.pixelSize: Appearance.font.pixelSize.small
                                     color: Appearance.colors.colOnLayer0
                                     text: {
                                         if (root.currentIndicator === "brightness") return Translation.tr("Brightness");
@@ -269,7 +268,7 @@ Scope {
                                 }
 
                                 StyledText {
-                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    font.pixelSize: Appearance.font.pixelSize.small
                                     font.bold: true
                                     Layout.alignment: Qt.AlignRight
 
@@ -303,8 +302,8 @@ Scope {
                             Rectangle {
                                 id: progressTrack
                                 Layout.fillWidth: true
-                                height: 6
-                                radius: 3
+                                height: 4
+                                radius: 2
                                 color: ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.14)
 
                                 readonly property real fillFraction: {
