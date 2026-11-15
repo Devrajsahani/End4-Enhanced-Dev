@@ -23,31 +23,45 @@ Singleton {
         screen
     }))
 
+    readonly property real value: {
+        const focusedName = Hyprland.focusedMonitor?.name;
+        const m = monitors.find(mon => focusedName === mon.screen?.name) ?? (monitors.length > 0 ? monitors[0] : null);
+        return m ? m.brightness : 0.5;
+    }
+
     function getMonitorForScreen(screen: ShellScreen): var {
         return monitors.find(m => m.screen === screen);
     }
 
-    function increaseBrightness(): void {
+    function refreshBrightness(): void {
+        for (let i = 0; i < monitors.length; i++) {
+            monitors[i].initialize();
+        }
+    }
+
+    function increaseBrightness(step): void {
+        const delta = (step !== undefined && step > 0) ? (step > 1 ? step / 100.0 : step) : 0.05;
         // if gamma is not yet 100, first increase gamma
         if (Hyprsunset.gamma !== 100) {
-            Hyprsunset.setGamma(Hyprsunset.gamma + 5);
+            Hyprsunset.setGamma(Math.min(100, Hyprsunset.gamma + Math.round(delta * 100)));
             return;
         }
 
-        const focusedName = Hyprland.focusedMonitor.name;
-        const monitor = monitors.find(m => focusedName === m.screen.name);
+        const focusedName = Hyprland.focusedMonitor?.name;
+        const monitor = monitors.find(m => focusedName === m.screen?.name) ?? (monitors.length > 0 ? monitors[0] : null);
         if (monitor)
-            monitor.setBrightness(monitor.brightness + 0.05);
+            monitor.setBrightness(monitor.brightness + delta);
     }
 
-    function decreaseBrightness(): void {
-        const focusedName = Hyprland.focusedMonitor.name;
-        const monitor = monitors.find(m => focusedName === m.screen.name);
+    function decreaseBrightness(step): void {
+        const delta = (step !== undefined && step > 0) ? (step > 1 ? step / 100.0 : step) : 0.05;
+        const focusedName = Hyprland.focusedMonitor?.name;
+        const monitor = monitors.find(m => focusedName === m.screen?.name) ?? (monitors.length > 0 ? monitors[0] : null);
         if (monitor && monitor.brightness > 0) 
-            monitor.setBrightness(monitor.brightness - 0.05);
+            monitor.setBrightness(monitor.brightness - delta);
         // if brightness is 0, then decrease gamma
         else {
-            Hyprsunset.setGamma(Hyprsunset.gamma - 5);
+            Hyprsunset.setGamma(Math.max(Hyprsunset.gammaLowerLimit, Hyprsunset.gamma - Math.round(delta * 100)));
         }
     }
 
@@ -248,12 +262,24 @@ Singleton {
     IpcHandler {
         target: "brightness"
 
-        function increment() {
-            onPressed: root.increaseBrightness()
+        function increment(): void {
+            root.increaseBrightness(5);
         }
 
-        function decrement() {
-            onPressed: root.decreaseBrightness()
+        function decrement(): void {
+            root.decreaseBrightness(5);
+        }
+
+        function stepUp(step: int): void {
+            root.increaseBrightness(step);
+        }
+
+        function stepDown(step: int): void {
+            root.decreaseBrightness(step);
+        }
+
+        function refresh(): void {
+            root.refreshBrightness();
         }
     }
 

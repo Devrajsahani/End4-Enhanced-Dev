@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import qs.modules.common
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Pipewire
 
 /**
@@ -50,23 +51,59 @@ Singleton {
 
     // Controls
     function toggleMute() {
-        Audio.sink.audio.muted = !Audio.sink.audio.muted
+        if (Audio.sink?.audio)
+            Audio.sink.audio.muted = !Audio.sink.audio.muted
     }
 
     function toggleMicMute() {
-        Audio.source.audio.muted = !Audio.source.audio.muted
+        if (Audio.source?.audio)
+            Audio.source.audio.muted = !Audio.source.audio.muted
     }
 
-    function incrementVolume() {
-        const currentVolume = Audio.value;
-        const step = currentVolume < 0.1 ? 0.01 : 0.02 || 0.2;
-        Audio.sink.audio.volume = Math.min(1, Audio.sink.audio.volume + step);
+    function incrementVolume(step) {
+        if (!Audio.sink?.audio) return;
+        const delta = (step !== undefined && step > 0) ? (step > 1 ? step / 100.0 : step) : (Audio.value < 0.1 ? 0.01 : 0.05);
+        Audio.sink.audio.volume = Math.min(1.5, Audio.sink.audio.volume + delta);
     }
     
-    function decrementVolume() {
-        const currentVolume = Audio.value;
-        const step = currentVolume < 0.1 ? 0.01 : 0.02 || 0.2;
-        Audio.sink.audio.volume -= step;
+    function decrementVolume(step) {
+        if (!Audio.sink?.audio) return;
+        const delta = (step !== undefined && step > 0) ? (step > 1 ? step / 100.0 : step) : (Audio.value < 0.1 ? 0.01 : 0.05);
+        Audio.sink.audio.volume = Math.max(0, Audio.sink.audio.volume - delta);
+    }
+
+    function setVolume(val) {
+        if (!Audio.sink?.audio) return;
+        const v = val > 1 ? val / 100.0 : val;
+        Audio.sink.audio.volume = Math.max(0, Math.min(1.5, v));
+    }
+
+    IpcHandler {
+        target: "audio"
+
+        function increment(): void {
+            root.incrementVolume(5);
+        }
+
+        function decrement(): void {
+            root.decrementVolume(5);
+        }
+
+        function stepUp(step: int): void {
+            root.incrementVolume(step);
+        }
+
+        function stepDown(step: int): void {
+            root.decrementVolume(step);
+        }
+
+        function mute(): void {
+            root.toggleMute();
+        }
+
+        function micMute(): void {
+            root.toggleMicMute();
+        }
     }
 
     function setDefaultSink(node) {

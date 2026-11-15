@@ -84,3 +84,4 @@ systemctl restart bluetooth
 echo ""
 echo "==> Done! Please restart your user PipeWire session cleanly once (or reboot):"
 echo "    systemctl --user restart pipewire pipewire-pulse wireplumber"
+

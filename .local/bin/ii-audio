@@ -183,10 +183,10 @@ def main():
                 act = chosen["action"]
                 if act == "toggle_sink_mute":
                     subprocess.run(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
-                    subprocess.run(["notify-send", "-a", "Audio Switcher", "Output Mute Toggled"])
+                    subprocess.run(["qs", "-c", "ii", "ipc", "call", "osd", "showVolume"])
                 elif act == "toggle_source_mute":
                     subprocess.run(["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"])
-                    subprocess.run(["notify-send", "-a", "Audio Switcher", "Microphone Mute Toggled"])
+                    subprocess.run(["qs", "-c", "ii", "ipc", "call", "osd", "showMic"])
                 elif act == "mixer":
                     subprocess.Popen(["pavucontrol"])
     except Exception:

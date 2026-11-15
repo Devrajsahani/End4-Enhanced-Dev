@@ -35,47 +35,55 @@ get_bright_int() {
 
 osd_notify() {
     local app="$1"
-    local icon="$2"
-    local val="$3"
-    local title="$4"
+    local icon="${2:-}"
+    local val="${3:-}"
+    local title="${4:-}"
     local body="${5:-}"
-    if command -v notify-send >/dev/null 2>&1; then
-        notify-send -a "$app" \
-            -h string:x-canonical-private-synchronous:sys-osd \
-            -h int:value:"$val" \
-            -i "$icon" \
-            "$title" "$body"
+    # Trigger modern centered Quickshell OSD header without desktop toast notifications
+    if [[ "$app" == *"Volume"* ]] || [[ "$icon" == *"audio"* ]]; then
+        qs -c ii ipc call osd showVolume >/dev/null 2>&1 || true
+    elif [[ "$app" == *"Brightness"* ]] || [[ "$icon" == *"brightness"* ]]; then
+        qs -c ii ipc call osd showBrightness >/dev/null 2>&1 || true
+    elif [[ "$app" == *"Microphone"* ]] || [[ "$icon" == *"microphone"* ]]; then
+        qs -c ii ipc call osd showMic >/dev/null 2>&1 || true
     fi
 }
 
 # --- Direct Actions (CLI / Keybindings) ---
-# Note: osd_notify calls silenced per user request for silent adjustments
 action_vol_up() {
     local step="${1:-5}"
     wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ "${step}%+"
+    qs -c ii ipc call osd showVolume >/dev/null 2>&1 || true
 }
 
 action_vol_down() {
     local step="${1:-5}"
     wpctl set-volume @DEFAULT_AUDIO_SINK@ "${step}%-"
+    qs -c ii ipc call osd showVolume >/dev/null 2>&1 || true
 }
 
 action_vol_mute() {
     wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+    qs -c ii ipc call osd showVolume >/dev/null 2>&1 || true
 }
 
 action_mic_mute() {
     wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+    qs -c ii ipc call osd showMic >/dev/null 2>&1 || true
 }
 
 action_bright_up() {
     local step="${1:-5}"
     brightnessctl s "${step}%+" >/dev/null 2>&1 || true
+    qs -c ii ipc call brightness refresh >/dev/null 2>&1 || true
+    qs -c ii ipc call osd showBrightness >/dev/null 2>&1 || true
 }
 
 action_bright_down() {
     local step="${1:-5}"
     brightnessctl s "${step}%-" >/dev/null 2>&1 || true
+    qs -c ii ipc call brightness refresh >/dev/null 2>&1 || true
+    qs -c ii ipc call osd showBrightness >/dev/null 2>&1 || true
 }
 
 # --- Rofi Sub-menus ---
