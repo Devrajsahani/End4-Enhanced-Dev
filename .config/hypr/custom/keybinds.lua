@@ -43,7 +43,6 @@ hl.bind("ALT + XF86MonBrightnessUp", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-con
 hl.bind("ALT + XF86MonBrightnessDown", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-control bright-down 1"), {description = "Brightness: Precise lower (-1%)", locked = true, repeating = true})
 
 -- Display Refresh Rate Controls (60Hz <-> 144Hz)
-hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-refresh-rate toggle"), {description = "Display: Toggle refresh rate (60Hz / 144Hz)"})
-hl.bind("SUPER + SHIFT + R", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-refresh-rate toggle"), {description = "Display: Toggle refresh rate (60Hz / 144Hz)"})
+hl.bind("ALT + R", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-refresh-rate toggle"), {description = "Display: Toggle refresh rate (60Hz / 144Hz)"})
 hl.bind("XF86Display", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-refresh-rate toggle"), {description = "Display: Hardware toggle refresh rate (Fn+R / Fn+F7)"})
 hl.bind("XF86Launch1", hl.dsp.exec_cmd(HOME .. "/.local/bin/ii-refresh-rate toggle"), {description = "Display: Hardware toggle refresh rate"})
