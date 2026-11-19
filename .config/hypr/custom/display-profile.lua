@@ -3,8 +3,20 @@ local INTERNAL = "eDP-1"
 local EXTERNAL = "HDMI-A-1"
 local PROFILE_FILE = (os.getenv("HOME") or "") .. "/.config/hypr/display-profile"
 local PREFERRED_FILE = (os.getenv("HOME") or "") .. "/.config/hypr/preferred-external-profile"
-local LAPTOP_MODE = "1920x1080@144.0"
+local REFRESH_RATE_FILE = (os.getenv("HOME") or "") .. "/.config/hypr/refresh-rate"
 local EXTERNAL_MODE = "1920x1080@119.88"
+
+local function getLaptopMode()
+    local rf = io.open(REFRESH_RATE_FILE, "r")
+    if rf then
+        local rate = rf:read("*l")
+        rf:close()
+        if rate and (rate:find("60") or rate == "60") then
+            return "1920x1080@60.0"
+        end
+    end
+    return "1920x1080@144.0"
+end
 
 local function readProfile()
     local file = io.open(PROFILE_FILE, "r")
@@ -61,6 +73,7 @@ local function isConnected(output)
 end
 
 function applyDisplayProfile(targetProfile)
+    local LAPTOP_MODE = getLaptopMode()
     local externalConnected = isConnected(EXTERNAL)
     local profile = targetProfile or readProfile()
 

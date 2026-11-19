@@ -15,7 +15,9 @@ Scope {
     id: root
 
     property string protectionMessage: ""
-    property string currentIndicator: "volume" // "volume" | "brightness" | "mic" | "gamma"
+    property string currentIndicator: "volume" // "volume" | "brightness" | "mic" | "gamma" | "refreshRate"
+    property string refreshRateValue: "144 Hz"
+    property real refreshRateFraction: 1.0
     property bool osdActive: false
 
     readonly property real volumeValue: Audio.sink?.audio?.volume ?? 0
@@ -38,6 +40,19 @@ Scope {
     function showMic() {
         root.protectionMessage = "";
         root.currentIndicator = "mic";
+        root.triggerOsd();
+    }
+
+    function showRefreshRate(rate) {
+        root.protectionMessage = "";
+        root.currentIndicator = "refreshRate";
+        if (rate && String(rate).length > 0) {
+            root.refreshRateValue = String(rate).includes("Hz") ? String(rate) : `${rate} Hz`;
+            const num = parseFloat(rate);
+            if (!isNaN(num) && num > 0) {
+                root.refreshRateFraction = Math.max(0.1, Math.min(1.0, num / 144.0));
+            }
+        }
         root.triggerOsd();
     }
 
@@ -225,6 +240,9 @@ Scope {
                                     : Appearance.colors.colPrimary
 
                                 text: {
+                                    if (root.currentIndicator === "refreshRate") {
+                                        return "speed";
+                                    }
                                     if (root.currentIndicator === "brightness") {
                                         if (root.brightnessValue > 0.6) return "light_mode";
                                         if (root.brightnessValue > 0.25) return "brightness_medium";
@@ -260,6 +278,7 @@ Scope {
                                     font.pixelSize: Appearance.font.pixelSize.small
                                     color: Appearance.colors.colOnLayer0
                                     text: {
+                                        if (root.currentIndicator === "refreshRate") return Translation.tr("Refresh Rate");
                                         if (root.currentIndicator === "brightness") return Translation.tr("Brightness");
                                         if (root.currentIndicator === "mic") return Translation.tr("Microphone");
                                         if (root.currentIndicator === "gamma") return Translation.tr("Night Light");
@@ -281,6 +300,9 @@ Scope {
                                     color: isMuted ? Appearance.m3colors.m3error : Appearance.colors.colPrimary
 
                                     text: {
+                                        if (root.currentIndicator === "refreshRate") {
+                                            return root.refreshRateValue;
+                                        }
                                         if (root.currentIndicator === "brightness") {
                                             return `${Math.round(root.brightnessValue * 100)}%`;
                                         }
@@ -307,6 +329,9 @@ Scope {
                                 color: ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.14)
 
                                 readonly property real fillFraction: {
+                                    if (root.currentIndicator === "refreshRate") {
+                                        return root.refreshRateFraction;
+                                    }
                                     if (root.currentIndicator === "brightness") {
                                         return Math.max(0, Math.min(1.0, root.brightnessValue));
                                     }
@@ -386,6 +411,10 @@ Scope {
 
     IpcHandler {
         target: "osd"
+
+        function showRefreshRate(rate: string): void {
+            root.showRefreshRate(rate);
+        }
 
         function showVolume(): void {
             root.showVolume();
