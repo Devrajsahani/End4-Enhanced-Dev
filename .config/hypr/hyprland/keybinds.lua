@@ -54,7 +54,7 @@ hl.bind("SUPER + W", hl.dsp.global("quickshell:wallpaperSelectorToggle"),
 hl.bind("SUPER + R", hl.dsp.global("quickshell:wallpaperSelectorToggle"))
 hl.bind("CTRL + SUPER + SHIFT + D", hl.dsp.global("quickshell:toggleLightDark"),
     { description = "Shell: Toggle light/dark mode" })
-hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd("killall ydotool qs quickshell; qs -c $qsConfig &"),
+hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd("killall ydotool qs quickshell; env -u QT_QPA_PLATFORMTHEME qs -c $qsConfig &"),
     { description = "Shell: Restart widgets" })
 hl.bind("CTRL + SUPER + P", hl.dsp.global("quickshell:panelFamilyCycle"), { description = "Shell: Cycle panel family" })
 

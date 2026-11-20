@@ -7,7 +7,7 @@ import QtQuick
 import Quickshell.Io
 import Quickshell.Widgets
 
-IconImage {
+Image {
     id: root
     property string url
     property string displayText
@@ -19,12 +19,12 @@ IconImage {
     property string faviconUrl: `https://www.google.com/s2/favicons?domain=${domainName}&sz=32`
     property string fileName: `${domainName}.ico`
     property string faviconFilePath: `${faviconDownloadPath}/${fileName}`
-    property string urlToLoad
+    property string urlToLoad: ""
 
     Process {
         id: faviconDownloadProcess
         running: false
-        command: ["bash", "-c", `[ -f ${faviconFilePath} ] || curl -s '${root.faviconUrl}' -o '${faviconFilePath}' -L -H 'User-Agent: ${downloadUserAgent}'`]
+        command: ["bash", "-c", `[ -f "${faviconFilePath}" ] || curl -s '${root.faviconUrl}' -o '${faviconFilePath}' -L -H 'User-Agent: ${downloadUserAgent}'`]
         onExited: (exitCode, exitStatus) => {
             root.urlToLoad = root.faviconFilePath
         }
@@ -34,14 +34,18 @@ IconImage {
         faviconDownloadProcess.running = true
     }
 
-    source: Qt.resolvedUrl(root.urlToLoad)
-    implicitSize: root.size
+    source: (root.urlToLoad && root.urlToLoad.length > 0) ? (root.urlToLoad.startsWith("file://") ? root.urlToLoad : `file://${root.urlToLoad}`) : ""
+    width: root.size
+    height: root.size
+    sourceSize.width: root.size
+    sourceSize.height: root.size
+    fillMode: Image.PreserveAspectFit
 
     layer.enabled: true
     layer.effect: OpacityMask {
         maskSource: Rectangle {
-            width: root.implicitSize
-            height: root.implicitSize
+            width: root.width
+            height: root.height
             radius: Appearance.rounding.full
         }
     }

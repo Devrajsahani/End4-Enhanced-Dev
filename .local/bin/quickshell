@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Wrapper to protect quickshell from KIconLoader worker thread SIGSEGV
+exec env -u QT_QPA_PLATFORMTHEME /usr/bin/quickshell "$@"
